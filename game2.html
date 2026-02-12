@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sakrash O'yini</title>
+    <style>
+        body { text-align: center; background-color: #222; color: white; font-family: sans-serif; }
+        canvas { border: 2px solid #e94560; background-color: #16213e; display: block; margin: 20px auto; }
+        .info { font-size: 20px; }
+    </style>
+</head>
+<body>
+    <h1>To'siqdan sakra!</h1>
+    <p class="info">Sakra: **Bo'shliq (Space)** yoki **Ekranga bosing**</p>
+    <canvas id="gameCanvas" width="600" height="200"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let score = 0;
+        let isGameOver = false;
+
+        // O'yinchi
+        const player = { x: 50, y: 150, size: 30, dy: 0, jumpForce: 12, gravity: 0.6, grounded: true };
+
+        // To'siq
+        const obstacle = { x: 600, y: 160, width: 20, height: 40, speed: 5 };
+
+        function draw() {
+            if (isGameOver) {
+                ctx.fillStyle = "white";
+                ctx.font = "30px Arial";
+                ctx.fillText("O'yin tugadi! Score: " + score, 150, 100);
+                ctx.fillText("Qaytadan boshlash uchun F5 bosing", 80, 140);
+                return;
+            }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // O'yinchini chizish
+            ctx.fillStyle = "#e94560";
+            ctx.fillRect(player.x, player.y, player.size, player.size);
+
+            // To'siqni chizish
+            ctx.fillStyle = "#00d2ff";
+            ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+
+            // Fizika va Harakat
+            if (!player.grounded) {
+                player.dy += player.gravity;
+                player.y += player.dy;
+            }
+
+            if (player.y > 150) {
+                player.y = 150;
+                player.grounded = true;
+                player.dy = 0;
+            }
+
+            obstacle.x -= obstacle.speed;
+            if (obstacle.x < -20) {
+                obstacle.x = 600;
+                score++;
+                obstacle.speed += 0.2; // Tezlikni oshirish
+            }
+
+            // To'qnashuvni tekshirish
+            if (player.x < obstacle.x + obstacle.width &&
+                player.x + player.size > obstacle.x &&
+                player.y < obstacle.y + obstacle.height &&
+                player.y + player.size > obstacle.y) {
+                isGameOver = true;
+            }
+
+            ctx.fillStyle = "white";
+            ctx.font = "20px Arial";
+            ctx.fillText("Ball: " + score, 10, 30);
+
+            requestAnimationFrame(draw);
+        }
+
+        function jump() {
+            if (player.grounded) {
+                player.dy = -player.jumpForce;
+                player.grounded = false;
+            }
+        }
+
+        window.addEventListener('keydown', (e) => { if (e.code === 'Space') jump(); });
+        canvas.addEventListener('touchstart', jump);
+
+        draw();
+    </script>
+</body>
+</html>
