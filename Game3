@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sarguzasht Dunyosi</title>
+    <style>
+        body { text-align: center; background-color: #222; color: white; font-family: sans-serif; margin: 0; overflow: hidden; }
+        canvas { border: 2px solid #e94560; background-color: #16213e; display: block; margin: 20px auto; max-width: 100%; }
+        .info { font-size: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Sarguzasht Dunyosi</h1>
+    <p class="info">Ball: <span id="scoreVal">0</span> | Tezlik: <span id="speedVal">1</span></p>
+    <canvas id="gameCanvas" width="600" height="200"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreEl = document.getElementById('scoreVal');
+        const speedEl = document.getElementById('speedVal');
+
+        let score = 0;
+        let isGameOver = false;
+        let gameSpeed = 5;
+
+        // Xarakter rasmini yuklash
+        const playerImg = new Image();
+        playerImg.src = 'hero.png'; // GitHub-ga yuklagan rasmingiz nomi
+
+        const player = { x: 50, y: 150, size: 40, dy: 0, jumpForce: 12, gravity: 0.6, grounded: true };
+        const obstacle = { x: 600, y: 160, width: 20, height: 40 };
+
+        function draw() {
+            if (isGameOver) {
+                ctx.fillStyle = "white";
+                ctx.font = "30px Arial";
+                ctx.fillText("O'yin tugadi!", 200, 80);
+                ctx.fillText("Ball: " + score, 240, 120);
+                ctx.font = "20px Arial";
+                ctx.fillText("Qayta boshlash uchun sahifani yangilang", 130, 160);
+                return;
+            }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 1. Kvadrat o'rniga mening rasmimni chizish
+            if (playerImg.complete) {
+                ctx.drawImage(playerImg, player.x, player.y, player.size, player.size);
+            } else {
+                ctx.fillStyle = "#e94560";
+                ctx.fillRect(player.x, player.y, player.size, player.size);
+            }
+
+            // 2. To'siqni chizish
+            ctx.fillStyle = "#00d2ff";
+            ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+
+            // Fizika
+            if (!player.grounded) {
+                player.dy += player.gravity;
+                player.y += player.dy;
+            }
+
+            if (player.y > 150) {
+                player.y = 150;
+                player.grounded = true;
+                player.dy = 0;
+            }
+
+            // To'siq harakati
+            obstacle.x -= gameSpeed;
+
+            if (obstacle.x < -20) {
+                obstacle.x = 600;
+                score++;
+                scoreEl.innerText = score;
+
+                // 3. Har 10 ball yig'ilganda tezlikni oshirish
+                if (score > 0 && score % 10 === 0) {
+                    gameSpeed += 1.5;
+                    speedEl.innerText = (gameSpeed / 5).toFixed(1);
+                }
+            }
+
+            // To'qnashuv
+            if (player.x < obstacle.x + obstacle.width &&
+                player.x + player.size > obstacle.x &&
+                player.y < obstacle.y + obstacle.height &&
+                player.y + player.size > obstacle.y) {
+                isGameOver = true;
+            }
+
+            requestAnimationFrame(draw);
+        }
+
+        function jump() {
+            if (player.grounded && !isGameOver) {
+                player.dy = -player.jumpForce;
+                player.grounded = false;
+            }
+        }
+
+        window.addEventListener('keydown', (e) => { if (e.code === 'Space') jump(); });
+        canvas.addEventListener('mousedown', jump);
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); jump(); });
+
+        draw();
+    </script>
+</body>
+</html>
