@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kosmik Jangchi</title>
+    <style>
+        body { margin: 0; background: #050505; color: white; font-family: sans-serif; text-align: center; overflow: hidden; }
+        canvas { display: block; background: #000; margin: 10px auto; border: 3px solid #444; cursor: crosshair; }
+        .ui { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); font-size: 20px; text-shadow: 2px 2px #000; }
+    </style>
+</head>
+<body>
+    <div class="ui">Ball: <span id="score">0</span></div>
+    <canvas id="spaceGame"></canvas>
+
+    <script>
+        const canvas = document.getElementById('spaceGame');
+        const ctx = canvas.getContext('2d');
+        const scoreEl = document.getElementById('score');
+
+        canvas.width = 400;
+        canvas.height = 600;
+
+        let score = 0;
+        let gameActive = true;
+
+        const player = { x: 180, y: 530, w: 40, h: 40, speed: 7 };
+        const bullets = [];
+        const enemies = [];
+
+        // Boshqaruv
+        let keys = {};
+        window.addEventListener('keydown', e => keys[e.code] = true);
+        window.addEventListener('keyup', e => keys[e.code] = false);
+
+        function createEnemy() {
+            if (Math.random() < 0.03) {
+                enemies.push({ x: Math.random() * (canvas.width - 30), y: -30, w: 30, h: 30, speed: 2 + (score/10) });
+            }
+        }
+
+        function update() {
+            if (!gameActive) return;
+
+            // Kema harakati
+            if (keys['ArrowLeft'] && player.x > 0) player.x -= player.speed;
+            if (keys['ArrowRight'] && player.x < canvas.width - player.w) player.x += player.speed;
+            if (keys['Space']) {
+                if (bullets.length === 0 || bullets[bullets.length-1].y < player.y - 20) {
+                    bullets.push({ x: player.x + 18, y: player.y, w: 4, h: 10 });
+                }
+            }
+
+            // O'qlar harakati
+            bullets.forEach((b, i) => {
+                b.y -= 10;
+                if (b.y < 0) bullets.splice(i, 1);
+            });
+
+            // Dushmanlar harakati
+            enemies.forEach((en, i) => {
+                en.y += en.speed;
+                if (en.y > canvas.height) { gameActive = false; alert("O'yin tugadi! Ball: " + score); location.reload(); }
+                
+                // O'q tegishi
+                bullets.forEach((b, bi) => {
+                    if (b.x < en.x + en.w && b.x + b.w > en.x && b.y < en.y + en.h && b.y + b.h > en.y) {
+                        enemies.splice(i, 1);
+                        bullets.splice(bi, 1);
+                        score++;
+                        scoreEl.innerText = score;
+                    }
+                });
+            });
+
+            createEnemy();
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Kema (Oddiy uchburchak kema)
+            ctx.fillStyle = '#00d2ff';
+            ctx.beginPath();
+            ctx.moveTo(player.x + 20, player.y);
+            ctx.lineTo(player.x, player.y + 40);
+            ctx.lineTo(player.x + 40, player.y + 40);
+            ctx.fill();
+
+            // O'qlar
+            ctx.fillStyle = 'yellow';
+            bullets.forEach(b => ctx.fillRect(b.x, b.y, b.w, b.h));
+
+            // Dushmanlar (Meteoritlar)
+            ctx.fillStyle = '#ff4d4d';
+            enemies.forEach(en => ctx.fillRect(en.x, en.y, en.w, en.h));
+
+            update();
+            requestAnimationFrame(draw);
+        }
+
+        draw();
+    </script>
+</body>
+</html>
