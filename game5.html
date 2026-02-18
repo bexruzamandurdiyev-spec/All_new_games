@@ -2,97 +2,163 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <title>IELTS va Ma'rifat Krossvordi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interaktiv Krossvord</title>
     <style>
-        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; background-color: #f4f4f9; }
-        .crossword-container { display: grid; grid-template-columns: repeat(12, 35px); grid-template-rows: repeat(10, 35px); gap: 2px; margin: 20px; }
-        .cell { width: 35px; height: 35px; border: 1px solid #ccc; text-align: center; position: relative; background-color: #fff; }
-        .cell input { width: 100%; height: 100%; border: none; text-align: center; font-size: 18px; text-transform: uppercase; outline: none; background: transparent; }
-        .cell.black { background-color: #333; border: none; }
-        .cell span { position: absolute; top: 1px; left: 2px; font-size: 10px; color: #777; pointer-events: none; }
-        .correct { background-color: #d4edda !important; }
-        .questions { max-width: 600px; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        h2 { color: #2c3e50; }
+        :root {
+            --cell-size: 40px;
+            --bg-color: #f0f2f5;
+            --correct-color: #28a745;
+            --border-color: #333;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .crossword-grid { display: grid; grid-template-columns: repeat(13, var(--cell-size)); grid-template-rows: repeat(11, var(--cell-size)); gap: 2px; background: #ccc; border: 2px solid var(--border-color); padding: 2px; }
+        .cell { width: var(--cell-size); height: var(--cell-size); background: white; position: relative; display: flex; align-items: center; justify-content: center; }
+        .cell.black { background: #333; }
+        .cell input { width: 100%; height: 100%; border: none; text-align: center; font-size: 20px; font-weight: bold; text-transform: uppercase; outline: none; background: transparent; cursor: pointer; }
+        .cell span { position: absolute; top: 2px; left: 2px; font-size: 11px; font-weight: bold; color: #555; pointer-events: none; }
+        .correct { background-color: var(--correct-color) !important; color: white !important; transition: 0.5s; }
+        .info { margin-top: 25px; max-width: 600px; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h2 { color: #1a73e8; }
+        .questions-row { display: flex; gap: 30px; }
+        h4 { margin-bottom: 10px; border-bottom: 2px solid #1a73e8; display: inline-block; }
     </style>
 </head>
 <body>
 
-    <h2>Krossvord: Buyuk siymolar va muvaffaqiyat</h2>
+    <h2>Ilm-fan va Muvaffaqiyat Krossvordi</h2>
 
-    <div class="crossword-container" id="grid">
+    <div class="crossword-grid" id="grid"></div>
+
+    <div class="info">
+        <div class="questions-row">
+            <div>
+                <h4>Eniga:</h4>
+                <p><b>1.</b> Zamaxshariyning grammatika asari.<br>
+                <b>3.</b> Cambridge markazi asoschisi.<br>
+                <b>5.</b> "Nashr etish yoki..." (halokat).<br>
+                <b>7.</b> Namangandagi til maktabi nomi.</p>
+            </div>
+            <div>
+                <h4>Bo'yiga:</h4>
+                <p><b>2.</b> Raufxon qaysi soha olimi?<br>
+                <b>4.</b> Zamaxshariy: "Faxru..."<br>
+                <b>6.</b> Ali olgan IELTS bali.</p>
+            </div>
         </div>
-
-    <div class="questions">
-        <h3>Savollar:</h3>
-        <p><strong>Eniga:</strong><br>
-        1. Zamaxshariyning arab tili grammatikasiga oid asari. (8 harf)<br>
-        3. Cambridge o'quv markazi asoschisi. (8 harf)<br>
-        5. Raufxonning shiori: "Nashr etish yoki ..." (7 harf)<br>
-        7. Namangandagi xorijiy tillar maktabi nomi. (5 harf)</p>
-        
-        <p><strong>Bo'yiga:</strong><br>
-        2. Raufxon qaysi soha bo'yicha kuchli yuztalikka kirdi? (10 harf)<br>
-        4. "Xorazm faxri" degan ma'noni beruvchi nom. (6 harf)<br>
-        6. Alining IELTS bali. (5 harf)</p>
     </div>
 
-    <script>
-        // Grid xaritasi (S=Start, B=Black, W=White)
-        // Oddiyroq bo'lishi uchun faqat kerakli kataklarni belgilaymiz
-        const layout = [
-            // 1 2 3 4 5 6 7 8 9 10 11 12
-            ['B','B','B','2','B','B','B','B','B','B','B','B'],
-            ['1','M','U','F','A','S','S','A','L','B','B','B'],
-            ['B','B','B','I','B','B','B','B','B','B','B','B'],
-            ['B','3','J','A','H','O','N','G','I','R','B','B'],
-            ['B','4','B','T','B','B','5','B','B','B','B','B'],
-            ['B','X','B','I','B','B','H','A','L','O','K','A','T'],
-            ['B','A','B','S','B','B','B','B','B','B','B','B'],
-            ['B','R','B','O','B','6','B','B','B','B','B','B'],
-            ['7','I','B','R','A','T','B','B','B','B','B','B'],
-            ['B','M','B','D','B','I','B','B','B','B','B','B']
-        ];
+<script>
+const words = [
+    { num: 1, text: "MUFASSAL", r: 1, c: 1, dir: "H" },
+    { num: 3, text: "JAHONGIR", r: 3, c: 1, dir: "H" },
+    { num: 5, text: "HALOKAT", r: 5, c: 6, dir: "H" },
+    { num: 7, text: "IBRAT", r: 9, c: 0, dir: "H" },
+    { num: 2, text: "IQTISODCHI", r: 0, c: 3, dir: "V" },
+    { num: 4, text: "XORAZM", r: 4, c: 1, dir: "V" },
+    { num: 6, text: "YETTI", r: 6, c: 5, dir: "V" }
+];
 
-        const answers = {
-            "1-1": "M", "1-2": "U", "1-3": "F", "1-4": "A", "1-5": "S", "1-6": "S", "1-7": "A", "1-8": "L",
-            "3-1": "J", "3-2": "A", "3-3": "H", "3-4": "O", "3-5": "N", "3-6": "G", "3-7": "I", "3-8": "R",
-            "5-6": "H", "5-7": "A", "5-8": "L", "5-9": "O", "5-10": "K", "5-11": "A", "5-12": "T",
-            "8-0": "I", "8-1": "B", "8-2": "R", "8-3": "A", "8-4": "T",
-            "0-3": "F", "2-3": "I", "4-3": "T", "5-3": "I", "6-3": "S", "7-3": "O", "8-3": "D", "9-3": "D",
-            "4-1": "X", "5-1": "A", "6-1": "R", "7-1": "A", "8-1": "B", "9-1": "M",
-            "7-5": "Y", "8-5": "E", "9-5": "T", "10-5": "T", "11-5": "I"
-        };
+const gridContainer = document.getElementById('grid');
+const matrix = Array(11).fill().map(() => Array(13).fill(null));
 
-        const grid = document.getElementById('grid');
+// Gridni qora kataklar bilan to'ldirish
+for (let i = 0; i < 11; i++) {
+    for (let j = 0; j < 13; j++) {
+        const div = document.createElement('div');
+        div.className = 'cell black';
+        div.id = `cell-${i}-${j}`;
+        gridContainer.appendChild(div);
+    }
+}
 
-        layout.forEach((row, rIdx) => {
-            row.forEach((cell, cIdx) => {
-                const div = document.createElement('div');
-                div.className = 'cell' + (cell === 'B' ? ' black' : '');
-                
-                if (cell !== 'B') {
-                    const input = document.createElement('input');
-                    input.maxLength = 1;
-                    input.dataset.row = rIdx;
-                    input.dataset.col = cIdx;
-                    
-                    // Raqamlarni qo'yish
-                    if (!isNaN(cell)) {
-                        const span = document.createElement('span');
-                        span.innerText = cell;
-                        div.appendChild(span);
+// So'zlar uchun oq kataklar ochish
+words.forEach(w => {
+    for (let i = 0; i < w.text.length; i++) {
+        let r = w.dir === "H" ? w.r : w.r + i;
+        let c = w.dir === "H" ? w.c + i : w.c;
+        let cell = document.getElementById(`cell-${r}-${c}`);
+        cell.className = 'cell';
+        if (!cell.querySelector('input')) {
+            const input = document.createElement('input');
+            input.maxLength = 1;
+            input.dataset.r = r;
+            input.dataset.c = c;
+            cell.appendChild(input);
+        }
+        if (i === 0) {
+            const span = document.createElement('span');
+            span.innerText = w.num;
+            cell.appendChild(span);
+        }
+    }
+});
+
+const inputs = document.querySelectorAll('.cell input');
+
+inputs.forEach(input => {
+    input.addEventListener('input', (e) => {
+        const val = e.target.value.toUpperCase();
+        e.target.value = val;
+        
+        if (val) {
+            // Keyingi katakka o'tish
+            focusNext(input);
+        }
+        checkWords();
+    });
+
+    input.addEventListener('keydown', (e) => {
+        if (e.key === "Backspace" && !input.value) {
+            focusPrev(input);
+        }
+    });
+});
+
+function focusNext(current) {
+    const r = parseInt(current.dataset.r);
+    const c = parseInt(current.dataset.c);
+    // Avval o'ngga, keyin pastga qidiradi
+    const next = document.querySelector(`input[data-r="${r}"][data-c="${c+1}"]`) || 
+                 document.querySelector(`input[data-r="${r+1}"][data-c="${c}"]`);
+    if (next) next.focus();
+}
+
+function focusPrev(current) {
+    const r = parseInt(current.dataset.r);
+    const c = parseInt(current.dataset.c);
+    const prev = document.querySelector(`input[data-r="${r}"][data-c="${c-1}"]`) || 
+                 document.querySelector(`input[data-r="${r-1}"][data-c="${c}"]`);
+    if (prev) prev.focus();
+}
+
+function checkWords() {
+    words.forEach(w => {
+        let currentGuess = "";
+        let cells = [];
+        
+        for (let i = 0; i < w.text.length; i++) {
+            let r = w.dir === "H" ? w.r : w.r + i;
+            let c = w.dir === "H" ? w.c + i : w.c;
+            let input = document.querySelector(`input[data-r="${r}"][data-c="${c}"]`);
+            currentGuess += input.value || " ";
+            cells.push(input);
+        }
+
+        if (currentGuess === w.text) {
+            cells.forEach(c => c.parentElement.classList.add('correct'));
+        } else {
+            // Agar so'z to'liq bo'lsa-yu, xato bo'lsa xato harflarni o'chirish
+            if (!currentGuess.includes(" ")) {
+                cells.forEach((c, idx) => {
+                    if (c.value !== w.text[idx]) {
+                        c.value = ""; // Xato harfni o'chirish
                     }
-
-                    input.addEventListener('input', function() {
-                        this.value = this.value.toUpperCase();
-                        // Tekshirish algoritmi bu yerda bo'lishi mumkin
-                    });
-                    
-                    div.appendChild(input);
-                }
-                grid.appendChild(div);
-            });
-        });
-    </script>
+                });
+            }
+        }
+    });
+}
+</script>
 </body>
 </html>
