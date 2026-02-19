@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muvaffaqiyat Zinapoyasi - Interaktiv Metod</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --success: #10b981;
+            --bg: #f8fafc;
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); display: flex; justify-content: center; padding: 40px 20px; }
+        .ladder-container { width: 100%; max-width: 500px; position: relative; }
+        
+        .step {
+            background: white;
+            border-left: 5px solid #cbd5e1;
+            margin-bottom: 20px;
+            padding: 20px;
+            border-radius: 0 12px 12px 0;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            transition: all 0.4s ease;
+            opacity: 0.4;
+            transform: translateX(-20px);
+            pointer-events: none;
+        }
+
+        .step.active {
+            opacity: 1;
+            transform: translateX(0);
+            border-left-color: var(--primary);
+            pointer-events: auto;
+        }
+
+        .step.completed {
+            border-left-color: var(--success);
+            background: #f0fdf4;
+        }
+
+        .step-num {
+            background: #e2e8f0;
+            color: #475569;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .active .step-num { background: var(--primary); color: white; }
+        .completed .step-num { background: var(--success); color: white; }
+
+        h3 { margin: 0 0 10px 0; color: #1e293b; }
+        p { margin: 0 0 15px 0; color: #64748b; line-height: 1.5; font-size: 0.95rem; }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        button:hover { background: #1d4ed8; }
+        .completed button { display: none; }
+
+        .final-msg {
+            display: none;
+            text-align: center;
+            padding: 30px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+
+<div class="ladder-container">
+    <h2 style="text-align: center; color: #1e293b; margin-bottom: 30px;">Muvaffaqiyat Zinapoyasi</h2>
+
+    <div class="step active" id="step1">
+        <div class="step-num">1</div>
+        <h3>Ibrat Zinası: Baza yarating</h3>
+        <p>Is'hoqxon Ibrat kabi til o'rganishda poydevorni mustahkamlang. Ko'p til bilish — bu dunyo eshiklarini ochishdir.</p>
+        <button onclick="nextStep(1)">Tushundim, keyingi bosqich</button>
+    </div>
+
+    <div class="step" id="step2">
+        <div class="step-num">2</div>
+        <h3>Zamaxshariy Zinası: Tinimsiz mehnat</h3>
+        <p>Buyuk mutafakkir kabi 50 dan ortiq asar yozish uchun qunt va sabr kerak. Ilm yo'lidagi qiyinchilik — bu sharaf.</p>
+        <button onclick="nextStep(2)">Mehnatga tayyorman</button>
+    </div>
+
+    <div class="step" id="step3">
+        <div class="step-num">3</div>
+        <h3>Jahongir Zinası: Xatodan qo'rqmang</h3>
+        <p>"Xato — bu to'xtash uchun sabab emas, balki qayta urinish uchun imkoniyatdir". O'z biznesingizni 22 yoshda boshlashga nima to'sqinlik qilyapti?</p>
+        <button onclick="nextStep(3)">Xatolardan o'rganaman</button>
+    </div>
+
+    <div class="step" id="step4">
+        <div class="step-num">4</div>
+        <h3>Raufxon Zinası: Nashr eting!</h3>
+        <p>"Nashr etish yoki halokat". Bilimingizni dunyoga ko'rsating, maqolalar yozing va xalqaro hamjamiyatda o'z o'rningizni toping.</p>
+        <button onclick="nextStep(4)">Maqsadga erishish</button>
+    </div>
+
+    <div class="final-msg" id="final">
+        <h2 style="color: var(--success);">Tabriklaymiz! 🎉</h2>
+        <p>Siz muvaffaqiyat formulasini o'zlashtirdingiz. Endi buni hayotga tadbiq etish vaqti keldi!</p>
+        <button onclick="location.reload()">Qayta boshlash</button>
+    </div>
+</div>
+
+<script>
+    function nextStep(current) {
+        const currentDiv = document.getElementById('step' + current);
+        currentDiv.classList.add('completed');
+        currentDiv.classList.remove('active');
+
+        const nextDiv = document.getElementById('step' + (current + 1));
+        if (nextDiv) {
+            nextDiv.classList.add('active');
+            window.scrollTo({
+                top: nextDiv.offsetTop - 50,
+                behavior: 'smooth'
+            });
+        } else {
+            document.getElementById('final').style.display = 'block';
+            window.scrollTo({
+                top: document.getElementById('final').offsetTop - 50,
+                behavior: 'smooth'
+            });
+        }
+    }
+</script>
+
+</body>
+</html>
