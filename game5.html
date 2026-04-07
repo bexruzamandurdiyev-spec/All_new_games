@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Snake Master Effects</title>
+    <title>Snake Master Pro</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
@@ -11,77 +11,204 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            background: #121212;
-            color: white;
-            font-family: 'Segoe UI', sans-serif;
+            background: #0f0f0f;
+            color: #00ff00;
+            font-family: 'Courier New', Courier, monospace;
             height: 100vh;
             width: 100vw;
             overflow: hidden;
             touch-action: none;
         }
 
-        /* Yutqazgandagi titrash effekti */
-        .shake {
-            animation: shake 0.5s;
-        }
-
-        @keyframes shake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            10% { transform: translate(-1px, -2px) rotate(-1deg); }
-            30% { transform: translate(3px, 2px) rotate(0deg); }
-            50% { transform: translate(-1px, 2px) rotate(1deg); }
-            70% { transform: translate(3px, 1px) rotate(-1deg); }
-            100% { transform: translate(1px, -2px) rotate(0deg); }
-        }
-
         .header {
             height: 10vh;
             display: flex;
             align-items: center;
-            font-size: 24px;
+            font-size: 28px;
             font-weight: bold;
-            color: #00ff00;
-            text-shadow: 0 0 10px rgba(0,255,0,0.5);
+            text-shadow: 0 0 10px #00ff00;
         }
 
-        canvas {
-            border: 3px solid #333;
+        /* Yutqazgandagi titrash */
+        .shake { animation: shakeAnim 0.4s; }
+        @keyframes shakeAnim {
+            0% { transform: translate(2px, 2px); }
+            25% { transform: translate(-2px, -2px); }
+            50% { transform: translate(2px, -2px); }
+            75% { transform: translate(-2px, 2px); }
+            100% { transform: translate(0, 0); }
+        }
+
+        #gameCanvas {
+            border: 2px solid #00ff00;
             background: #000;
-            max-width: 95vw;
+            max-width: 90vw;
             max-height: 45vh;
-            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
         }
 
-        /* Game Over Menyusi */
-        #gameOverMenu {
+        /* Game Over Paneli */
+        #menu {
             display: none;
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.9);
-            padding: 30px;
-            border: 2px solid #ff4d4d;
-            border-radius: 20px;
+            background: rgba(0, 0, 0, 0.95);
+            padding: 40px;
+            border: 3px solid #ff0000;
             text-align: center;
-            z-index: 10;
-            box-shadow: 0 0 30px rgba(255, 77, 77, 0.5);
+            z-index: 100;
+            border-radius: 15px;
         }
 
-        #gameOverMenu h2 { color: #ff4d4d; margin-bottom: 10px; font-size: 32px; }
-        #gameOverMenu p { font-size: 20px; margin-bottom: 20px; }
+        #menu h2 { color: #ff0000; font-size: 35px; margin-bottom: 10px; }
+        #menu p { color: white; font-size: 20px; margin-bottom: 20px; }
+        .restart-btn {
+            background: #ff0000;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+        }
 
+        /* Tugmalar */
         .controls {
-            height: 35vh;
+            height: 40vh;
             display: grid;
-            grid-template-columns: repeat(3, 70px);
-            grid-template-rows: repeat(2, 70px);
+            grid-template-columns: repeat(3, 80px);
+            grid-template-rows: repeat(2, 80px);
             gap: 15px;
-            margin-top: 15px;
+            margin-top: 20px;
         }
 
         .btn {
-            width: 70px;
-            height: 70px;
-            background: #333;
+            width: 80px;
+            height: 80px;
+            background: rgba(0, 255, 0, 0.1);
             border: 2px solid #00ff00;
+            border-radius: 50%;
+            color: #00ff00;
+            font-size: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+
+        .btn:active { background: #00ff00; color: black; }
+
+        .up { grid-column: 2; }
+        .left { grid-column: 1; grid-row: 2; }
+        .down { grid-column: 2; grid-row: 2; }
+        .right { grid-column: 3; grid-row: 2; }
+    </style>
+</head>
+<body id="mainBody">
+
+    <div class="header">SCORE: <span id="scoreText">0</span></div>
+
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
+
+    <div id="menu">
+        <h2>LOSE!</h2>
+        <p>Ballingiz: <span id="finalScoreText">0</span></p>
+        <button class="restart-btn" onclick="location.reload()">RESTART</button>
+    </div>
+
+    <div class="controls">
+        <button class="btn up" onpointerdown="move('UP')">▲</button>
+        <button class="btn left" onpointerdown="move('LEFT')">◀</button>
+        <button class="btn down" onpointerdown="move('DOWN')">▼</button>
+        <button class="btn right" onpointerdown="move('RIGHT')">▶</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const scoreDisplay = document.getElementById("scoreText");
+        const finalScoreDisplay = document.getElementById("finalScoreText");
+        const menu = document.getElementById("menu");
+        const body = document.getElementById("mainBody");
+
+        let box = 20;
+        let score = 0;
+        let snake = [{x: 10 * box, y: 10 * box}];
+        let food = { x: 5 * box, y: 5 * box };
+        let dir = "";
+        let isGameOver = false;
+
+        function move(d) {
+            if (isGameOver) return;
+            if (d == "LEFT" && dir != "RIGHT") dir = "LEFT";
+            if (d == "UP" && dir != "DOWN") dir = "UP";
+            if (d == "RIGHT" && dir != "LEFT") dir = "RIGHT";
+            if (d == "DOWN" && dir != "UP") dir = "DOWN";
+        }
+
+        function checkCollision(head, array) {
+            for (let i = 0; i < array.length; i++) {
+                if (head.x == array[i].x && head.y == array[i].y) return true;
+            }
+            return false;
+        }
+
+        function draw() {
+            if (isGameOver) return;
+
+            ctx.fillStyle = "black";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Ilonni chizish
+            for (let i = 0; i < snake.length; i++) {
+                ctx.fillStyle = (i == 0) ? "#00ff00" : "#005500";
+                ctx.fillRect(snake[i].x, snake[i].y, box, box);
+                ctx.strokeStyle = "black";
+                ctx.strokeRect(snake[i].x, snake[i].y, box, box);
+            }
+
+            // Ovqatni chizish
+            ctx.fillStyle = "red";
+            ctx.fillRect(food.x, food.y, box, box);
+
+            let headX = snake[0].x;
+            let headY = snake[0].y;
+
+            if (dir == "LEFT") headX -= box;
+            if (dir == "UP") headY -= box;
+            if (dir == "RIGHT") headX += box;
+            if (dir == "DOWN") headY += box;
+
+            // Ovqatni yeyish
+            if (headX == food.x && headY == food.y) {
+                score++;
+                scoreDisplay.innerText = score;
+                food = {
+                    x: Math.floor(Math.random() * 19 + 1) * box,
+                    y: Math.floor(Math.random() * 19 + 1) * box
+                };
+            } else {
+                snake.pop();
+            }
+
+            let newHead = { x: headX, y: headY };
+
+            // Yutqazish holati
+            if (headX < 0 || headX >= canvas.width || headY < 0 || headY >= canvas.height || checkCollision(newHead, snake)) {
+                isGameOver = true;
+                clearInterval(game);
+                body.classList.add("shake");
+                finalScoreDisplay.innerText = score;
+                menu.style.display = "block";
+            }
+
+            snake.unshift(newHead);
+        }
+
+        let game = setInterval(draw, 150);
+    </script>
+</body>
+</html>
