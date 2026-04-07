@@ -3,153 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>X va O O'yini</title>
+    <title>X va O: Pro Versiya</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        /* Dizayn qismi (CSS) */
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
             margin: 0;
-            background-color: #f0f2f5;
+            background: radial-gradient(circle, #2c3e50, #000000);
+            color: white;
+            overflow: hidden;
         }
 
-        h1 { color: #333; }
+        h1 {
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px #3498db;
+        }
 
         .status {
             margin-bottom: 20px;
             font-size: 1.5rem;
-            font-weight: bold;
-            color: #555;
+            padding: 10px 20px;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
         }
 
         .board {
             display: grid;
             grid-template-columns: repeat(3, 100px);
             grid-template-rows: repeat(3, 100px);
-            gap: 10px;
+            gap: 15px;
+            perspective: 1000px;
         }
 
         .cell {
             width: 100px;
             height: 100px;
-            background-color: #fff;
+            background: rgba(255, 255, 255, 0.05);
             border: 2px solid #3498db;
-            border-radius: 8px;
+            border-radius: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.5rem;
+            font-size: 3rem;
             font-weight: bold;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.2);
         }
 
-        .cell:hover { background-color: #ecf0f1; }
-        .cell.x { color: #e74c3c; }
-        .cell.o { color: #2ecc71; }
-
-        button {
-            margin-top: 30px;
-            padding: 10px 20px;
-            font-size: 1rem;
-            background-color: #3498db;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
+        .cell:hover {
+            background: rgba(52, 152, 219, 0.2);
+            transform: scale(1.05) rotateY(10deg);
         }
 
-        button:hover { background-color: #2980b9; }
-    </style>
-</head>
-<body>
+        .cell.x { color: #ff4757; text-shadow: 0 0 15px #ff4757; }
+        .cell.o { color: #2ed573; text-shadow: 0 0 15px #2ed573; }
 
-    <h1>X va O O'yini</h1>
-    <div class="status" id="status">X ning navbati</div>
-    
-    <div class="board" id="board">
-        <div class="cell" data-index="0"></div>
-        <div class="cell" data-index="1"></div>
-        <div class="cell" data-index="2"></div>
-        <div class="cell" data-index="3"></div>
-        <div class="cell" data-index="4"></div>
-        <div class="cell" data-index="5"></div>
-        <div class="cell" data-index="6"></div>
-        <div class="cell" data-index="7"></div>
-        <div class="cell" data-index="8"></div>
-    </div>
-
-    <button onclick="resetGame()">O'yinni yangilash</button>
-
-    <script>
-        /* Mantiq qismi (JavaScript) */
-        const boardElement = document.getElementById('board');
-        const statusElement = document.getElementById('status');
-        let currentPlayer = 'X';
-        let gameState = ["", "", "", "", "", "", "", "", ""];
-        let gameActive = true;
-
-        const winningConditions = [
-            [0, 1, 2], [3, 4, 5], [6, 7, 8], // Gorizontal
-            [0, 3, 6], [1, 4, 7], [2, 5, 8], // Vertikal
-            [0, 4, 8], [2, 4, 6]             // Diagonal
-        ];
-
-        function handleCellClick(event) {
-            const clickedCell = event.target;
-            const clickedIndex = parseInt(clickedCell.getAttribute('data-index'));
-
-            if (gameState[clickedIndex] !== "" || !gameActive) return;
-
-            gameState[clickedIndex] = currentPlayer;
-            clickedCell.innerText = currentPlayer;
-            clickedCell.classList.add(currentPlayer.toLowerCase());
-
-            checkResult();
+        /* G'olib kataklar uchun animatsiya */
+        .winner-cell {
+            background: rgba(255, 255, 0, 0.3) !important;
+            animation: pulse 0.5s infinite alternate;
         }
 
-        function checkResult() {
-            let roundWon = false;
-            for (let i = 0; i < winningConditions.length; i++) {
-                const [a, b, c] = winningConditions[i];
-                if (gameState[a] && gameState[a] === gameState[b] && gameState[a] === gameState[c]) {
-                    roundWon = true;
-                    break;
-                }
-            }
-
-            if (roundWon) {
-                statusElement.innerText = `G'alaba! ${currentPlayer} yutdi!`;
-                gameActive = false;
-                return;
-            }
-
-            if (!gameState.includes("")) {
-                statusElement.innerText = "Durang!";
-                gameActive = false;
-                return;
-            }
-
-            currentPlayer = currentPlayer === "X" ? "O" : "X";
-            statusElement.innerText = `${currentPlayer} ning navbati`;
-        }
-
-        function resetGame() {
-            currentPlayer = "X";
-            gameState = ["", "", "", "", "", "", "", "", ""];
-            gameActive = true;
-            statusElement.innerText = "X ning navbati";
-            document.querySelectorAll('.cell').forEach(cell => {
-                cell.innerText = "";
-                cell.classList.remove('x', 'o');
-            });
-        }
-
-        boardElement.addEventListener('click', handleCellClick);
-    </script>
-</body>
-</html>
+        @keyframes pulse {
