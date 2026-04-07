@@ -2,201 +2,273 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <title>Shukur Xolmirzayev - Kiber Krossvord</title>
+    <title>Shukur Xolmirzayev - Interactive Crossword</title>
     <style>
         :root {
-            --neon-cyan: #00f3ff;
+            --neon-blue: #00d2ff;
             --neon-pink: #ff00ff;
-            --bg: #050505;
+            --neon-green: #39ff14;
+            --bg: #0a0a0a;
         }
 
         body {
             background-color: var(--bg);
             color: #fff;
-            font-family: 'Orbitron', sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 100vh;
-            margin: 0;
             padding: 20px;
+            margin: 0;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
         }
 
         h1 {
-            color: var(--neon-cyan);
-            text-shadow: 0 0 15px var(--neon-cyan);
+            color: var(--neon-blue);
+            text-shadow: 0 0 10px var(--neon-blue);
+            margin: 10px 0;
             text-transform: uppercase;
-            letter-spacing: 5px;
         }
 
-        .main-container {
+        .level-indicator {
+            background: var(--neon-pink);
+            padding: 5px 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            box-shadow: 0 0 15px var(--neon-pink);
+        }
+
+        .main-game {
             display: flex;
-            gap: 50px;
+            gap: 40px;
             flex-wrap: wrap;
             justify-content: center;
-            margin-top: 20px;
+            max-width: 1200px;
         }
 
         /* Krossvord Setkasi */
-        .crossword-board {
+        .grid-container {
+            position: relative;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 20px;
+            border: 2px solid var(--neon-blue);
+            box-shadow: 0 0 25px rgba(0, 210, 255, 0.2);
+        }
+
+        .grid {
             display: grid;
-            grid-template-columns: repeat(12, 40px);
-            grid-template-rows: repeat(12, 40px);
-            gap: 4px;
-            background: rgba(0, 243, 255, 0.1);
-            padding: 10px;
-            border: 2px solid var(--neon-cyan);
-            box-shadow: 0 0 20px var(--neon-cyan);
+            grid-template-columns: repeat(12, 45px);
+            grid-template-rows: repeat(12, 45px);
+            gap: 5px;
+        }
+
+        .cell-wrapper {
+            position: relative;
+            width: 45px;
+            height: 45px;
+        }
+
+        .cell-num {
+            position: absolute;
+            top: 2px;
+            left: 4px;
+            font-size: 10px;
+            color: var(--neon-blue);
+            z-index: 2;
+            pointer-events: none;
         }
 
         .cell {
-            width: 40px;
-            height: 40px;
-            background: transparent;
+            width: 100%;
+            height: 100%;
+            background: #111;
             border: 1px solid #333;
             text-align: center;
-            font-size: 20px;
+            font-size: 24px;
             font-weight: bold;
-            color: white;
+            color: #fff;
             text-transform: uppercase;
             outline: none;
+            transition: 0.2s;
+        }
+
+        .active { border-color: var(--neon-pink); }
+        .active:focus { background: #222; box-shadow: inset 0 0 10px var(--neon-pink); }
+        .hidden { visibility: hidden; }
+
+        .correct { color: var(--neon-green) !important; border-color: var(--neon-green) !important; }
+        .wrong { color: #ff3131 !important; border-color: #ff3131 !important; }
+
+        /* Sidebar Savollar */
+        .sidebar {
+            width: 380px;
+            background: #151515;
+            padding: 25px;
+            border-radius: 15px;
+            border-right: 5px solid var(--neon-blue);
+        }
+
+        .sidebar h2 { color: var(--neon-blue); border-bottom: 1px solid #333; padding-bottom: 10px; }
+        
+        .question-item {
+            margin-bottom: 15px;
+            font-size: 15px;
+            line-height: 1.5;
+            color: #ddd;
+        }
+        .question-item b { color: var(--neon-pink); margin-right: 8px; }
+
+        .btn-group {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+        }
+
+        button {
+            padding: 12px 25px;
+            background: transparent;
+            border: 2px solid var(--neon-blue);
+            color: var(--neon-blue);
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 5px;
             transition: 0.3s;
         }
 
-        .cell.active {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: var(--neon-pink);
-        }
-
-        .cell.active:focus {
-            background: rgba(255, 0, 255, 0.2);
-            box-shadow: 0 0 10px var(--neon-pink);
-        }
-
-        .correct { border-color: #00ff00 !important; box-shadow: 0 0 10px #00ff00; }
-        .wrong { border-color: #ff0000 !important; box-shadow: 0 0 10px #ff0000; }
-
-        /* Savollar qismi */
-        .questions-box {
-            max-width: 450px;
-            background: #111;
-            padding: 20px;
-            border-left: 4px solid var(--neon-pink);
-            box-shadow: -10px 0 20px rgba(255, 0, 255, 0.2);
-        }
-
-        .questions-box h2 { color: var(--neon-pink); font-size: 1.2rem; }
+        button:hover { background: var(--neon-blue); color: #000; box-shadow: 0 0 20px var(--neon-blue); }
         
-        .q-list { height: 400px; overflow-y: auto; padding-right: 10px; }
-        .q-item { margin-bottom: 15px; font-size: 0.9rem; line-height: 1.4; color: #ccc; }
-        .q-item b { color: var(--neon-cyan); }
-
-        .btn-check {
-            margin-top: 30px;
-            padding: 15px 40px;
-            background: transparent;
-            color: var(--neon-cyan);
-            border: 2px solid var(--neon-cyan);
-            font-size: 18px;
-            cursor: pointer;
-            transition: 0.4s;
-            letter-spacing: 2px;
-        }
-
-        .btn-check:hover {
-            background: var(--neon-cyan);
-            color: #000;
-            box-shadow: 0 0 30px var(--neon-cyan);
-        }
-
-        /* Bo'sh kataklar uchun */
-        .empty { visibility: hidden; }
+        #next-btn { border-color: var(--neon-green); color: var(--neon-green); display: none; }
     </style>
 </head>
 <body>
 
-    <h1>SHUKUR XOLMIRZAYEV KROSSVORD</h1>
+    <div class="header">
+        <div class="level-indicator" id="lvl-tag">BOSQICH 1</div>
+        <h1 id="lvl-title">LUG'AT BOYLIGI (RASMDAGI SO'ZLAR)</h1>
+    </div>
 
-    <div class="main-container">
-        <div class="crossword-board" id="board">
-            </div>
+    <div class="main-game">
+        <div class="grid-container">
+            <div class="grid" id="main-grid"></div>
+        </div>
 
-        <div class="questions-box">
+        <div class="sidebar">
             <h2>SAVOLLAR</h2>
-            <div class="q-list">
-                <div class="q-item"><b>1.</b> Adib tug'ilgan viloyat? (11 harf)</div>
-                <div class="q-item"><b>2.</b> Milliy o'zbek o'yini? (7 harf)</div>
-                <div class="q-item"><b>3.</b> Loydan yasalgan qurilish materiali? (6 harf)</div>
-                <div class="q-item"><b>4.</b> Opaning eri, pochcha? (5 harf)</div>
-                <div class="q-item"><b>5.</b> Qo'ylar saqlanadigan joy? (4 harf)</div>
-                <div class="q-item"><b>6.</b> Yetilmagan qovun? (6 harf)</div>
-                <div class="q-item"><b>7.</b> Adib tug'ilgan tuman? (6 harf)</div>
+            <div id="q-list"></div>
+            <div class="btn-group">
+                <button onclick="checkAnswers()">TEKSHIRISH</button>
+                <button id="next-btn" onclick="startLevel2()">KEYINGI BOSQICH (IJOD)</button>
             </div>
         </div>
     </div>
 
-    <button class="btn-check" onclick="checkCrossword()">TEKSHIRISH</button>
-
     <script>
-        // Krossvord strukturasi (R, C, Javob)
-        const answers = [
-            { r: 1, c: 1, word: "SURXONDARYO" },
-            { r: 3, c: 1, word: "CHILLAK" },
-            { r: 5, c: 1, word: "GUVALA" },
-            { r: 7, c: 1, word: "YAZNA" },
-            { r: 9, c: 1, word: "QORA" },
-            { r: 11, c: 1, word: "TUYNAK" },
-            { r: 1, c: 1, word: "BOYSUN", dir: "down" }
-        ];
-
-        const board = document.getElementById('board');
-        const cells = {};
-
-        // 12x12 grid yaratish
-        for (let r = 0; r < 12; r++) {
-            for (let c = 0; c < 12; c++) {
-                const input = document.createElement('input');
-                input.className = 'cell empty';
-                input.dataset.row = r;
-                input.dataset.col = c;
-                input.maxLength = 1;
-                board.appendChild(input);
-                cells[`${r}-${c}`] = input;
+        const levels = {
+            1: {
+                tag: "BOSQICH 1",
+                title: "LUG'AT BOYLIGI (RASMDAGI SO'ZLAR)",
+                words: [
+                    { r: 1, c: 1, word: "CHILLAK", q: "O'zbek xalq milliy o'yini" },
+                    { r: 3, c: 1, word: "GUVALA", q: "Loydan yasalgan qurilish materiali" },
+                    { r: 5, c: 1, word: "TUYNAK", q: "Hali yetilmagan yangi qovun" },
+                    { r: 7, c: 1, word: "YAZNA", q: "Opaning eri, pochcha" },
+                    { r: 9, c: 1, word: "QORA", q: "Qo'ylar saqlanadigan joy" },
+                    { r: 11, c: 1, word: "POXOL", q: "Bug'doy yoki sholi poyasi" }
+                ]
+            },
+            2: {
+                tag: "BOSQICH 2",
+                title: "SHUKUR XOLMIRZAYEV HAYOTI VA IJODI",
+                words: [
+                    { r: 1, c: 1, word: "SURXONDARYO", q: "Adib tug'ilgan viloyat" },
+                    { r: 3, c: 1, word: "BOYSUN", q: "Adib tug'ilgan tuman" },
+                    { r: 5, c: 1, word: "OQOTIL", q: "Ilk hikoyalar to'plami nomi" },
+                    { r: 7, c: 1, word: "TOLQINLAR", q: "60-yillardagi mashhur qissasi" },
+                    { r: 9, c: 1, word: "TOSHKENT", q: "Adib vafot etgan shahar" }
+                ]
             }
-        }
+        };
 
-        // Aktiv kataklarni belgilash
-        answers.forEach(a => {
-            for (let i = 0; i < a.word.length; i++) {
-                let r = a.dir === "down" ? a.r + i : a.r;
-                let c = a.dir === "down" ? a.c : a.c + i;
-                let cell = cells[`${r}-${c}`];
-                cell.className = 'cell active';
-                cell.dataset.answer = a.word[i];
+        let currentLvl = 1;
+
+        function renderLevel(lvl) {
+            const grid = document.getElementById('main-grid');
+            const qList = document.getElementById('q-list');
+            grid.innerHTML = '';
+            qList.innerHTML = '';
+            document.getElementById('lvl-tag').innerText = levels[lvl].tag;
+            document.getElementById('lvl-title').innerText = levels[lvl].title;
+            document.getElementById('next-btn').style.display = 'none';
+
+            // Gridni yaratish (12x12)
+            const cells = {};
+            for (let r = 1; r <= 12; r++) {
+                for (let c = 1; c <= 12; c++) {
+                    const wrap = document.createElement('div');
+                    wrap.className = 'cell-wrapper';
+                    const input = document.createElement('input');
+                    input.className = 'cell hidden';
+                    input.id = `cell-${r}-${c}`;
+                    input.maxLength = 1;
+                    wrap.appendChild(input);
+                    grid.appendChild(wrap);
+                    cells[`${r}-${c}`] = input;
+                }
             }
-        });
 
-        // Avtomatik keyingi katakka o'tish
-        document.querySelectorAll('.cell.active').forEach(cell => {
-            cell.addEventListener('input', function() {
-                if (this.value.length === 1) {
-                    let next = cells[`${this.dataset.row}-${parseInt(this.dataset.col) + 1}`];
-                    if (next && next.classList.contains('active')) next.focus();
+            // Savollar va raqamlarni joylash
+            levels[lvl].words.forEach((item, index) => {
+                const num = index + 1;
+                // Savol matni
+                const qDiv = document.createElement('div');
+                qDiv.className = 'question-item';
+                qDiv.innerHTML = `<b>${num}.</b> ${item.q} (${item.word.length} harf)`;
+                qList.appendChild(qDiv);
+
+                // Kataklarni aktivlashtirish va raqam qo'yish
+                for (let i = 0; i < item.word.length; i++) {
+                    const targetCell = cells[`${item.r}-${item.c + i}`];
+                    targetCell.className = 'cell active';
+                    targetCell.dataset.ans = item.word[i];
+                    
+                    if (i === 0) { // Birinchi harfga raqam qo'yish
+                        const span = document.createElement('span');
+                        span.className = 'cell-num';
+                        span.innerText = num;
+                        targetCell.parentElement.appendChild(span);
+                    }
                 }
             });
-        });
+        }
 
-        function checkCrossword() {
-            document.querySelectorAll('.cell.active').forEach(cell => {
-                if (cell.value.toUpperCase() === cell.dataset.answer) {
+        function checkAnswers() {
+            let win = true;
+            document.querySelectorAll('.active').forEach(cell => {
+                if (cell.value.toUpperCase() === cell.dataset.ans) {
                     cell.classList.add('correct');
                     cell.classList.remove('wrong');
                 } else {
                     cell.classList.add('wrong');
-                    cell.classList.remove('correct');
+                    win = false;
                 }
             });
+
+            if (win) {
+                if (currentLvl < 2) document.getElementById('next-btn').style.display = 'block';
+                else alert("TABRIKLAYMIZ! Barcha krossvordlarni yechdingiz.");
+            }
         }
+
+        function startLevel2() {
+            currentLvl = 2;
+            renderLevel(2);
+        }
+
+        renderLevel(1);
     </script>
 </body>
 </html>
