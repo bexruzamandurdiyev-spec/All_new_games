@@ -3,146 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Muvaffaqiyat Zinapoyasi - Interaktiv Metod</title>
+    <title>X va O O'yini</title>
     <style>
-        :root {
-            --primary: #2563eb;
-            --success: #10b981;
-            --bg: #f8fafc;
+        /* Dizayn qismi (CSS) */
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
         }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); display: flex; justify-content: center; padding: 40px 20px; }
-        .ladder-container { width: 100%; max-width: 500px; position: relative; }
-        
-        .step {
-            background: white;
-            border-left: 5px solid #cbd5e1;
+
+        h1 { color: #333; }
+
+        .status {
             margin-bottom: 20px;
-            padding: 20px;
-            border-radius: 0 12px 12px 0;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-            transition: all 0.4s ease;
-            opacity: 0.4;
-            transform: translateX(-20px);
-            pointer-events: none;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #555;
         }
 
-        .step.active {
-            opacity: 1;
-            transform: translateX(0);
-            border-left-color: var(--primary);
-            pointer-events: auto;
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 10px;
         }
 
-        .step.completed {
-            border-left-color: var(--success);
-            background: #f0fdf4;
-        }
-
-        .step-num {
-            background: #e2e8f0;
-            color: #475569;
-            width: 30px;
-            height: 30px;
+        .cell {
+            width: 100px;
+            height: 100px;
+            background-color: #fff;
+            border: 2px solid #3498db;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 50%;
+            font-size: 2.5rem;
             font-weight: bold;
-            margin-bottom: 10px;
+            cursor: pointer;
+            transition: background 0.3s;
         }
 
-        .active .step-num { background: var(--primary); color: white; }
-        .completed .step-num { background: var(--success); color: white; }
-
-        h3 { margin: 0 0 10px 0; color: #1e293b; }
-        p { margin: 0 0 15px 0; color: #64748b; line-height: 1.5; font-size: 0.95rem; }
+        .cell:hover { background-color: #ecf0f1; }
+        .cell.x { color: #e74c3c; }
+        .cell.o { color: #2ecc71; }
 
         button {
-            background: var(--primary);
+            margin-top: 30px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            background-color: #3498db;
             color: white;
             border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
+            border-radius: 5px;
             cursor: pointer;
-            font-weight: 600;
-            transition: background 0.2s;
         }
 
-        button:hover { background: #1d4ed8; }
-        .completed button { display: none; }
-
-        .final-msg {
-            display: none;
-            text-align: center;
-            padding: 30px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-        }
+        button:hover { background-color: #2980b9; }
     </style>
 </head>
 <body>
 
-<div class="ladder-container">
-    <h2 style="text-align: center; color: #1e293b; margin-bottom: 30px;">Muvaffaqiyat Zinapoyasi</h2>
-
-    <div class="step active" id="step1">
-        <div class="step-num">1</div>
-        <h3>Ibrat Zinası: Baza yarating</h3>
-        <p>Is'hoqxon Ibrat kabi til o'rganishda poydevorni mustahkamlang. Ko'p til bilish — bu dunyo eshiklarini ochishdir.</p>
-        <button onclick="nextStep(1)">Tushundim, keyingi bosqich</button>
+    <h1>X va O O'yini</h1>
+    <div class="status" id="status">X ning navbati</div>
+    
+    <div class="board" id="board">
+        <div class="cell" data-index="0"></div>
+        <div class="cell" data-index="1"></div>
+        <div class="cell" data-index="2"></div>
+        <div class="cell" data-index="3"></div>
+        <div class="cell" data-index="4"></div>
+        <div class="cell" data-index="5"></div>
+        <div class="cell" data-index="6"></div>
+        <div class="cell" data-index="7"></div>
+        <div class="cell" data-index="8"></div>
     </div>
 
-    <div class="step" id="step2">
-        <div class="step-num">2</div>
-        <h3>Zamaxshariy Zinası: Tinimsiz mehnat</h3>
-        <p>Buyuk mutafakkir kabi 50 dan ortiq asar yozish uchun qunt va sabr kerak. Ilm yo'lidagi qiyinchilik — bu sharaf.</p>
-        <button onclick="nextStep(2)">Mehnatga tayyorman</button>
-    </div>
+    <button onclick="resetGame()">O'yinni yangilash</button>
 
-    <div class="step" id="step3">
-        <div class="step-num">3</div>
-        <h3>Jahongir Zinası: Xatodan qo'rqmang</h3>
-        <p>"Xato — bu to'xtash uchun sabab emas, balki qayta urinish uchun imkoniyatdir". O'z biznesingizni 22 yoshda boshlashga nima to'sqinlik qilyapti?</p>
-        <button onclick="nextStep(3)">Xatolardan o'rganaman</button>
-    </div>
+    <script>
+        /* Mantiq qismi (JavaScript) */
+        const boardElement = document.getElementById('board');
+        const statusElement = document.getElementById('status');
+        let currentPlayer = 'X';
+        let gameState = ["", "", "", "", "", "", "", "", ""];
+        let gameActive = true;
 
-    <div class="step" id="step4">
-        <div class="step-num">4</div>
-        <h3>Raufxon Zinası: Nashr eting!</h3>
-        <p>"Nashr etish yoki halokat". Bilimingizni dunyoga ko'rsating, maqolalar yozing va xalqaro hamjamiyatda o'z o'rningizni toping.</p>
-        <button onclick="nextStep(4)">Maqsadga erishish</button>
-    </div>
+        const winningConditions = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], // Gorizontal
+            [0, 3, 6], [1, 4, 7], [2, 5, 8], // Vertikal
+            [0, 4, 8], [2, 4, 6]             // Diagonal
+        ];
 
-    <div class="final-msg" id="final">
-        <h2 style="color: var(--success);">Tabriklaymiz! 🎉</h2>
-        <p>Siz muvaffaqiyat formulasini o'zlashtirdingiz. Endi buni hayotga tadbiq etish vaqti keldi!</p>
-        <button onclick="location.reload()">Qayta boshlash</button>
-    </div>
-</div>
+        function handleCellClick(event) {
+            const clickedCell = event.target;
+            const clickedIndex = parseInt(clickedCell.getAttribute('data-index'));
 
-<script>
-    function nextStep(current) {
-        const currentDiv = document.getElementById('step' + current);
-        currentDiv.classList.add('completed');
-        currentDiv.classList.remove('active');
+            if (gameState[clickedIndex] !== "" || !gameActive) return;
 
-        const nextDiv = document.getElementById('step' + (current + 1));
-        if (nextDiv) {
-            nextDiv.classList.add('active');
-            window.scrollTo({
-                top: nextDiv.offsetTop - 50,
-                behavior: 'smooth'
-            });
-        } else {
-            document.getElementById('final').style.display = 'block';
-            window.scrollTo({
-                top: document.getElementById('final').offsetTop - 50,
-                behavior: 'smooth'
+            gameState[clickedIndex] = currentPlayer;
+            clickedCell.innerText = currentPlayer;
+            clickedCell.classList.add(currentPlayer.toLowerCase());
+
+            checkResult();
+        }
+
+        function checkResult() {
+            let roundWon = false;
+            for (let i = 0; i < winningConditions.length; i++) {
+                const [a, b, c] = winningConditions[i];
+                if (gameState[a] && gameState[a] === gameState[b] && gameState[a] === gameState[c]) {
+                    roundWon = true;
+                    break;
+                }
+            }
+
+            if (roundWon) {
+                statusElement.innerText = `G'alaba! ${currentPlayer} yutdi!`;
+                gameActive = false;
+                return;
+            }
+
+            if (!gameState.includes("")) {
+                statusElement.innerText = "Durang!";
+                gameActive = false;
+                return;
+            }
+
+            currentPlayer = currentPlayer === "X" ? "O" : "X";
+            statusElement.innerText = `${currentPlayer} ning navbati`;
+        }
+
+        function resetGame() {
+            currentPlayer = "X";
+            gameState = ["", "", "", "", "", "", "", "", ""];
+            gameActive = true;
+            statusElement.innerText = "X ning navbati";
+            document.querySelectorAll('.cell').forEach(cell => {
+                cell.innerText = "";
+                cell.classList.remove('x', 'o');
             });
         }
-    }
-</script>
 
+        boardElement.addEventListener('click', handleCellClick);
+    </script>
 </body>
 </html>
