@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Brawl Mini Mobile</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            background: #1a472a; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            height: 100vh; 
+            overflow: hidden; 
+            touch-action: none;
+            font-family: Arial, sans-serif;
+        }
+        #ui { margin-top: 10px; color: gold; font-size: 20px; font-weight: bold; z-index: 10; }
+        canvas { 
+            background: #2e7d32; 
+            border: 3px solid #fff; 
+            border-radius: 10px; 
+            margin-top: 10px;
+            display: block;
+        }
+        .controls { 
+            position: fixed; 
+            bottom: 20px; 
+            width: 100%; 
+            display: flex; 
+            justify-content: space-around; 
+            padding: 0 20px; 
+        }
+        .fire-btn { 
+            width: 90px; 
+            height: 90px; 
+            background: red; 
+            border-radius: 50%; 
+            border: 4px solid white; 
+            color: white; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: bold;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="ui">KUBOKLAR: <span id="score">0</span></div>
+    <canvas id="game"></canvas>
+
+    <div class="controls">
+        <div style="color: white; font-size: 12px;">Yurish: Ekranning chap qismiga bosing</div>
+        <div class="fire-btn" onpointerdown="fire()">OTISH</div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("game");
+        const ctx = canvas.getContext("2d");
+        const scoreEl = document.getElementById("score");
+
+        canvas.width = window.innerWidth - 30;
+        canvas.height = window.innerHeight * 0.5;
+
+        let player = { x: canvas.width/2, y: canvas.height/2, r: 15 };
+        let enemies = [];
+        let bullets = [];
+        let score = 0;
+
+        // Mobil yurish boshqaruvi
+        window.addEventListener('pointermove', (e) => {
+            if (e.clientX < window.innerWidth / 2) {
+                player.x = e.clientX - 15;
+                player.y = e.clientY - 100;
+            }
+        });
+
+        function fire() {
+            if (enemies.length > 0) {
+                let target = enemies[0];
+                let angle = Math.atan2(target.y - player.y, target.x - player.x);
+                bullets.push({ x: player.x, y: player.y, vx: Math.cos(angle)*8, vy: Math.sin(angle)*8 });
+            }
+        }
+
+        function spawnEnemy() {
+            enemies.push({ x: Math.random()*canvas.width, y: 0, r: 12 });
+        }
+        setInterval(spawnEnemy, 2000);
+
+        function update() {
+            bullets.forEach((b, i) => {
+                b.x += b.vx; b.y += b.vy;
+                if(b.x < 0 || b.x > canvas.width) bullets.splice(i, 1);
+            });
+
+            enemies.forEach((en, ei) => {
+                let dx = player.x - en.x;
+                let dy = player.y - en.y;
+                let dist = Math.sqrt(dx*dx + dy*dy);
+                en.x += dx/dist * 1.5;
+                en.y += dy/dist * 1.5;
+
+                if (dist < player.r + en.r) {
+                    alert("Yutqazdingiz! Ball: " + score);
+                    location.reload();
+                }
+
+                bullets.forEach((b, bi) => {
+                    let d = Math.sqrt((b.x-en.x)**2 + (b.y-en.y)**2);
+                    if (d < en.r) {
+                        enemies.splice(ei, 1);
+                        bullets.splice(bi, 1);
+                        score += 10;
+                        scoreEl.innerText = score;
+                    }
+                });
+            });
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // O'yinchi
+            ctx.fillStyle = "#2196f3";
+            ctx.beginPath(); ctx.arc(player.x, player.y, player.r, 0, Math.PI*2); ctx.fill();
+
+            // Dushmanlar
+            ctx.fillStyle = "red";
+            enemies.forEach(en => {
+                ctx.beginPath(); ctx.arc(en.x, en.y, en.r, 0, Math.PI*2); ctx.fill();
+            });
+
+            // O'qlar
+            ctx.fillStyle = "yellow";
+            bullets.forEach(b => {
+                ctx.beginPath(); ctx.arc(b.x, b.y, 5, 0, Math.PI*2); ctx.fill();
+            });
+
+            update();
+            requestAnimationFrame(draw);
+        }
+        draw();
+    </script>
+</body>
+</html>
