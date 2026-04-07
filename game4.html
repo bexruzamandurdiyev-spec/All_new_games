@@ -7,182 +7,164 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            font-family: 'Segoe UI', sans-serif;
+            background: #121212;
             color: white;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            padding: 20px;
+            height: 100vh;
         }
-
         .container {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
+            background: #1e1e1e;
             padding: 30px;
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            width: 100%;
+            width: 90vw;
             max-width: 400px;
             text-align: center;
+            border: 2px solid #00ff88;
         }
-
-        h1 { margin-bottom: 20px; font-size: 24px; text-transform: uppercase; letter-spacing: 2px; }
-
-        .mode-selector { display: flex; gap: 10px; margin-bottom: 20px; }
         .mode-btn {
-            flex: 1;
             padding: 10px;
-            border: none;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.2);
+            margin: 5px;
+            background: #333;
             color: white;
+            border: none;
+            border-radius: 5px;
             cursor: pointer;
-            transition: 0.3s;
         }
-        .mode-btn.active { background: #00ff88; color: #1e3c72; font-weight: bold; }
-
+        .active { background: #00ff88; color: black; font-weight: bold; }
         input {
             width: 100%;
             padding: 15px;
-            font-size: 20px;
+            margin: 15px 0;
             border-radius: 10px;
             border: none;
-            margin-bottom: 15px;
+            font-size: 20px;
             text-align: center;
         }
-
-        button.check-btn {
+        .main-btn {
             width: 100%;
             padding: 15px;
             background: #00ff88;
-            color: #1e3c72;
             border: none;
             border-radius: 10px;
             font-size: 18px;
             font-weight: bold;
             cursor: pointer;
         }
-
-        .message { margin-top: 20px; min-height: 50px; font-size: 18px; line-height: 1.4; }
-
-        .stats {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255,255,255,0.2);
-            font-size: 14px;
-            text-align: left;
-        }
-
-        .record { color: #f1c40f; font-weight: bold; }
-        
-        #restartBtn { display: none; margin-top: 15px; background: #e74c3c; color: white; }
+        .msg { margin: 20px 0; font-size: 18px; color: #00ff88; min-height: 50px; }
+        .record-box { font-size: 14px; color: #aaa; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>Sonni Top!</h1>
-
-        <div class="mode-selector">
-            <button class="mode-btn active" id="singleMode" onclick="setMode('single')">Bir kishi</button>
-            <button class="mode-btn" id="multiMode" onclick="setMode('multi')">Ikki kishi</button>
-        </div>
-
-        <div id="gameArea">
-            <p id="instruction" style="margin-bottom: 10px;">1 dan 100 gacha son o'yladim.</p>
-            <input type="number" id="userInput" placeholder="Sonni yozing...">
-            <button class="check-btn" onclick="checkGuess()">TEKSHIRISH</button>
-            <button class="check-btn" id="restartBtn" onclick="initGame()">QAYTA BOSHLASH</button>
-        </div>
-
-        <div class="message" id="msg">O'yinni boshlaymiz!</div>
-
-        <div class="stats">
-            <div>Urinishlar: <span id="attempts">0</span></div>
-            <div>Eng yaxshi natija: <span id="bestScore" class="record">--</span></div>
-            <div id="p2Stat" style="display:none">2-o'yinchi rekordi: <span id="bestScoreP2" class="record">--</span></div>
-        </div>
+<div class="container">
+    <h2 id="title">Sonni Top!</h2>
+    
+    <div id="modeSelection">
+        <button class="mode-btn active" id="btn1" onclick="selectMode(1)">1 Kishilik</button>
+        <button class="mode-btn" id="btn2" onclick="selectMode(2)">2 Kishilik</button>
     </div>
 
-    <script>
-        let secretNum;
-        let attempts = 0;
-        let mode = 'single';
-        let currentPlayer = 1;
-        let bestSingle = localStorage.getItem('bestSingle') || Infinity;
+    <div class="msg" id="displayMsg">Tartibni tanlang va boshlang!</div>
+    
+    <input type="password" id="secretInput" placeholder="Yashirin sonni kiriting" style="display:none">
+    <input type="number" id="guessInput" placeholder="Sonni toping...">
+    
+    <button class="main-btn" id="actionBtn" onclick="handleAction()">TEKSHIRISH</button>
+    <button class="main-btn" id="restartBtn" onclick="resetGame()" style="display:none; background:#ff4d4d">QAYTA BOSHLASH</button>
 
-        function initGame() {
+    <div class="record-box">
+        Urinishlar: <span id="currentAttempts">0</span> | 
+        Rekord: <span id="bestResult">--</span>
+    </div>
+</div>
+
+<script>
+    let mode = 1;
+    let secretNum;
+    let attempts = 0;
+    let isSettingSecret = false;
+    let bestScore = localStorage.getItem('bestGuessScore') || "--";
+
+    document.getElementById('bestResult').innerText = bestScore;
+
+    function selectMode(m) {
+        mode = m;
+        document.getElementById('btn1').classList.toggle('active', m === 1);
+        document.getElementById('btn2').classList.toggle('active', m === 2);
+        resetGame();
+    }
+
+    function resetGame() {
+        attempts = 0;
+        document.getElementById('currentAttempts').innerText = attempts;
+        document.getElementById('restartBtn').style.display = "none";
+        document.getElementById('actionBtn').style.display = "block";
+        document.getElementById('guessInput').style.display = "none";
+        document.getElementById('secretInput').style.display = "none";
+        document.getElementById('guessInput').value = "";
+        document.getElementById('secretInput').value = "";
+
+        if (mode === 1) {
             secretNum = Math.floor(Math.random() * 100) + 1;
-            attempts = 0;
-            document.getElementById('attempts').innerText = attempts;
-            document.getElementById('msg').innerText = "1 dan 100 gacha son o'ylandi!";
-            document.getElementById('msg').style.color = "white";
-            document.getElementById('userInput').value = "";
-            document.getElementById('userInput').style.display = "block";
-            document.getElementById('restartBtn').style.display = "none";
-            document.querySelector('.check-btn').style.display = "block";
-            
-            updateRecordsDisplay();
+            document.getElementById('displayMsg').innerText = "Kompyuter 1-100 gacha son o'yladi!";
+            document.getElementById('guessInput').style.display = "block";
+            isSettingSecret = false;
+        } else {
+            isSettingSecret = true;
+            document.getElementById('displayMsg').innerText = "1-O'yinchi: Yashirin sonni kiriting (2-o'yinchi ko'rmasin!)";
+            document.getElementById('secretInput').style.display = "block";
+            document.getElementById('actionBtn').innerText = "SAQLASH";
         }
+    }
 
-        function setMode(newMode) {
-            mode = newMode;
-            document.getElementById('singleMode').classList.toggle('active', mode === 'single');
-            document.getElementById('multiMode').classList.toggle('active', mode === 'multi');
-            document.getElementById('p2Stat').style.display = (mode === 'multi') ? 'block' : 'none';
-            
-            if(mode === 'multi') {
-                document.getElementById('instruction').innerText = "1-o'yinchi uchun son o'ylandi!";
-            } else {
-                document.getElementById('instruction').innerText = "1 dan 100 gacha son o'yladim.";
+    function handleAction() {
+        if (isSettingSecret) {
+            let val = parseInt(document.getElementById('secretInput').value);
+            if (isNaN(val) || val < 1 || val > 100) {
+                alert("1 dan 100 gacha son kiriting!");
+                return;
             }
-            initGame();
+            secretNum = val;
+            isSettingSecret = false;
+            document.getElementById('secretInput').style.display = "none";
+            document.getElementById('guessInput').style.display = "block";
+            document.getElementById('actionBtn').innerText = "TEKSHIRISH";
+            document.getElementById('displayMsg').innerText = "Endi 2-O'yinchi: Sonni topishga harakat qiling!";
+        } else {
+            checkGuess();
         }
+    }
 
-        function updateRecordsDisplay() {
-            document.getElementById('bestScore').innerText = (bestSingle === Infinity) ? "--" : bestSingle;
-        }
+    function checkGuess() {
+        let guess = parseInt(document.getElementById('guessInput').value);
+        if (isNaN(guess)) return;
 
-        function checkGuess() {
-            let guess = parseInt(document.getElementById('userInput').value);
-            if(isNaN(guess)) return;
+        attempts++;
+        document.getElementById('currentAttempts').innerText = attempts;
 
-            attempts++;
-            document.getElementById('attempts').innerText = attempts;
-            let msg = document.getElementById('msg');
-
-            if(guess === secretNum) {
-                msg.innerText = `G'ALABA! 🎉 \n ${attempts} ta urinishda topdingiz!`;
-                msg.style.color = "#00ff88";
-                endGame();
-            } else if (guess < secretNum) {
-                msg.innerText = "Kattaroq son ayting... ⬆️";
-                msg.style.color = "#f39c12";
-            } else {
-                msg.innerText = "Kichikroq son ayting... ⬇️";
-                msg.style.color = "#e74c3c";
+        if (guess === secretNum) {
+            document.getElementById('displayMsg').innerText = `TABRIKLAYMAN! 🎉 ${attempts} urinishda topildi!`;
+            if (mode === 1 && (bestScore === "--" || attempts < bestScore)) {
+                bestScore = attempts;
+                localStorage.setItem('bestGuessScore', bestScore);
+                document.getElementById('bestResult').innerText = bestScore;
             }
-            document.getElementById('userInput').value = "";
-        }
-
-        function endGame() {
-            if(mode === 'single') {
-                if(attempts < bestSingle) {
-                    bestSingle = attempts;
-                    localStorage.setItem('bestSingle', bestSingle);
-                    updateRecordsDisplay();
-                    document.getElementById('msg').innerText += " \n YANGI REKORD! 🏆";
-                }
-            }
-            document.getElementById('userInput').style.display = "none";
-            document.querySelector('.check-btn').style.display = "none";
+            document.getElementById('actionBtn').style.display = "none";
             document.getElementById('restartBtn').style.display = "block";
+        } else if (guess < secretNum) {
+            document.getElementById('displayMsg').innerText = "Kattaroq son ayting... ⬆️";
+        } else {
+            document.getElementById('displayMsg').innerText = "Kichikroq son ayting... ⬇️";
         }
+        document.getElementById('guessInput').value = "";
+    }
 
-        // Birinchi marta ishga tushirish
-        initGame();
-    </script>
+    // O'yinni ilk bor yuklash
+    resetGame();
+</script>
+
 </body>
 </html>
