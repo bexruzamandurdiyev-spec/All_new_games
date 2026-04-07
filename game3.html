@@ -3,109 +3,221 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Brawl Mini Mobile</title>
+    <title>Brawl Mini: Neon</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { 
-            background: #1a472a; 
+            background: #000; 
             display: flex; 
             flex-direction: column; 
             align-items: center; 
             height: 100vh; 
             overflow: hidden; 
             touch-action: none;
-            font-family: Arial, sans-serif;
+            font-family: 'Courier New', Courier, monospace;
+            color: white;
         }
-        #ui { margin-top: 10px; color: gold; font-size: 20px; font-weight: bold; z-index: 10; }
+
+        #ui { 
+            margin-top: 15px; 
+            font-size: 24px; 
+            font-weight: bold; 
+            color: #fff; 
+            text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff; 
+            z-index: 10; 
+        }
+
         canvas { 
-            background: #2e7d32; 
-            border: 3px solid #fff; 
-            border-radius: 10px; 
-            margin-top: 10px;
+            background: #050505; 
+            border: 3px solid #00ffff; 
+            border-radius: 15px; 
+            box-shadow: 0 0 20px #00ffff;
+            margin-top: 15px;
             display: block;
         }
+
+        /* Mobil Boshqaruv (Neon Joystik va Tugma) */
         .controls { 
             position: fixed; 
-            bottom: 20px; 
+            bottom: 30px; 
             width: 100%; 
             display: flex; 
-            justify-content: space-around; 
-            padding: 0 20px; 
+            justify-content: space-between; 
+            padding: 0 40px; 
+            z-index: 20;
         }
-        .fire-btn { 
+
+        #joystick { 
+            width: 100px; 
+            height: 100px; 
+            background: rgba(0,255,255,0.1); 
+            border: 3px solid #00ffff; 
+            border-radius: 50%; 
+            position: relative; 
+            box-shadow: 0 0 15px #00ffff;
+        }
+
+        #joystick-thumb { 
+            width: 50px; 
+            height: 50px; 
+            background: #00ffff; 
+            border-radius: 50%; 
+            position: absolute; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            box-shadow: 0 0 20px #00ffff;
+        }
+
+        #fireBtn { 
             width: 90px; 
             height: 90px; 
-            background: red; 
+            background: rgba(255,0,255,0.1); 
+            border: 4px solid #ff00ff; 
             border-radius: 50%; 
-            border: 4px solid white; 
-            color: white; 
+            color: #ff00ff; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            font-weight: bold;
-            box-shadow: 0 5px 10px rgba(0,0,0,0.5);
+            font-weight: bold; 
+            font-size: 18px;
+            text-shadow: 0 0 10px #ff00ff;
+            box-shadow: 0 0 20px #ff00ff;
+            user-select: none;
         }
+
+        #fireBtn:active { transform: scale(0.9); box-shadow: 0 0 10px #ff00ff; background: rgba(255,0,255,0.3); }
+
     </style>
 </head>
 <body>
 
-    <div id="ui">KUBOKLAR: <span id="score">0</span></div>
+    <div id="ui">SCORE: <span id="score">0</span></div>
     <canvas id="game"></canvas>
 
     <div class="controls">
-        <div style="color: white; font-size: 12px;">Yurish: Ekranning chap qismiga bosing</div>
-        <div class="fire-btn" onpointerdown="fire()">OTISH</div>
+        <div id="joystick"><div id="joystick-thumb"></div></div>
+        <div id="fireBtn" onpointerdown="fire()">FIRE</div>
     </div>
 
     <script>
         const canvas = document.getElementById("game");
         const ctx = canvas.getContext("2d");
         const scoreEl = document.getElementById("score");
+        const thumb = document.getElementById("joystick-thumb");
 
+        // O'yin o'lchamini telefon ekraniga moslash
         canvas.width = window.innerWidth - 30;
-        canvas.height = window.innerHeight * 0.5;
+        canvas.height = window.innerHeight * 0.55;
 
-        let player = { x: canvas.width/2, y: canvas.height/2, r: 15 };
+        // O'yin elementlari
+        let player = { x: canvas.width/2, y: canvas.height/2, r: 15, color: '#00ffff' };
         let enemies = [];
         let bullets = [];
         let score = 0;
+        let keys = {}; // Klaviatura uchun ham qoldiramiz
 
-        // Mobil yurish boshqaruvi
-        window.addEventListener('pointermove', (e) => {
-            if (e.clientX < window.innerWidth / 2) {
-                player.x = e.clientX - 15;
-                player.y = e.clientY - 100;
+        // Joystik mantiqi
+        let joystickActive = false;
+        let startX, startY;
+        let moveX = 0, moveY = 0;
+
+        window.addEventListener('pointerdown', (e) => {
+            if (e.target.id === 'joystick' || e.target.id === 'joystick-thumb') {
+                joystickActive = true;
+                startX = e.clientX;
+                startY = e.clientY;
             }
         });
 
+        window.addEventListener('pointermove', (e) => {
+            if (joystickActive) {
+                let dx = e.clientX - startX;
+                let dy = e.clientY - startY;
+                let dist = Math.sqrt(dx*dx + dy*dy);
+                let maxDist = 40;
+
+                if (dist > maxDist) {
+                    dx *= maxDist / dist;
+                    dy *= maxDist / dist;
+                }
+
+                thumb.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+                moveX = dx / maxDist;
+                moveY = dy / maxDist;
+            }
+        });
+
+        window.addEventListener('pointerup', () => {
+            if (joystickActive) {
+                joystickActive = false;
+                thumb.style.transform = 'translate(-50%, -50%)';
+                moveX = 0; moveY = 0;
+            }
+        });
+
+        // Klaviatura boshqaruvi
+        window.onkeydown = (e) => keys[e.code] = true;
+        window.onkeyup = (e) => keys[e.code] = false;
+
+        // Yaxshilangan otish mexanikasi (Auto-Aim)
         function fire() {
             if (enemies.length > 0) {
-                let target = enemies[0];
-                let angle = Math.atan2(target.y - player.y, target.x - player.x);
-                bullets.push({ x: player.x, y: player.y, vx: Math.cos(angle)*8, vy: Math.sin(angle)*8 });
+                let target = null;
+                let minDist = Infinity;
+
+                enemies.forEach(en => {
+                    let d = Math.sqrt((player.x-en.x)**2 + (player.y-en.y)**2);
+                    if (d < minDist) { minDist = d; target = en; }
+                });
+
+                if (target) {
+                    let angle = Math.atan2(target.y - player.y, target.x - player.x);
+                    bullets.push({ x: player.x, y: player.y, vx: Math.cos(angle)*9, vy: Math.sin(angle)*9 });
+                }
+            } else {
+                // Dushman yo'q bo'lsa, tepadagi dushmanga otadi
+                bullets.push({ x: player.x, y: player.y, vx: 0, vy: -9 });
             }
         }
 
         function spawnEnemy() {
-            enemies.push({ x: Math.random()*canvas.width, y: 0, r: 12 });
+            enemies.push({ x: Math.random()*canvas.width, y: 0, r: 12, color: '#ff00ff' });
         }
-        setInterval(spawnEnemy, 2000);
+        setInterval(spawnEnemy, 1800);
 
         function update() {
+            // O'yinchi harakati (Joystik yoki Klaviatura)
+            if (joystickActive) {
+                player.x += moveX * 3.5;
+                player.y += moveY * 3.5;
+            } else {
+                if (keys['ArrowUp'] || keys['KeyW']) player.y -= 3.5;
+                if (keys['ArrowDown'] || keys['KeyS']) player.y += 3.5;
+                if (keys['ArrowLeft'] || keys['KeyA']) player.x -= 3.5;
+                if (keys['ArrowRight'] || keys['KeyD']) player.x += 3.5;
+            }
+
+            // Xaritadan chiqib ketmaslik
+            if (player.x < 15) player.x = 15;
+            if (player.x > canvas.width - 15) player.x = canvas.width - 15;
+            if (player.y < 15) player.y = 15;
+            if (player.y > canvas.height - 15) player.y = canvas.height - 15;
+
             bullets.forEach((b, i) => {
                 b.x += b.vx; b.y += b.vy;
-                if(b.x < 0 || b.x > canvas.width) bullets.splice(i, 1);
+                if(b.x < 0 || b.x > canvas.width || b.y < 0 || b.y > canvas.height) bullets.splice(i, 1);
             });
 
             enemies.forEach((en, ei) => {
                 let dx = player.x - en.x;
                 let dy = player.y - en.y;
                 let dist = Math.sqrt(dx*dx + dy*dy);
-                en.x += dx/dist * 1.5;
-                en.y += dy/dist * 1.5;
+                en.x += dx/dist * 1.8;
+                en.y += dy/dist * 1.8;
 
                 if (dist < player.r + en.r) {
-                    alert("Yutqazdingiz! Ball: " + score);
+                    alert("O'yin tugadi! Ball: " + score);
                     location.reload();
                 }
 
@@ -124,21 +236,29 @@
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // O'yinchi
-            ctx.fillStyle = "#2196f3";
+            // Neon effektlari
+            ctx.shadowBlur = 15;
+
+            // O'yinchi (Neon Moviy)
+            ctx.fillStyle = player.color;
+            ctx.shadowColor = player.color;
             ctx.beginPath(); ctx.arc(player.x, player.y, player.r, 0, Math.PI*2); ctx.fill();
 
-            // Dushmanlar
-            ctx.fillStyle = "red";
+            // Dushmanlar (Neon Pushti)
+            ctx.fillStyle = "#ff00ff";
+            ctx.shadowColor = "#ff00ff";
             enemies.forEach(en => {
                 ctx.beginPath(); ctx.arc(en.x, en.y, en.r, 0, Math.PI*2); ctx.fill();
             });
 
-            // O'qlar
-            ctx.fillStyle = "yellow";
+            // O'qlar (Neon Sariq)
+            ctx.fillStyle = "#fbbf24";
+            ctx.shadowColor = "#fbbf24";
             bullets.forEach(b => {
-                ctx.beginPath(); ctx.arc(b.x, b.y, 5, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(b.x, b.y, 6, 0, Math.PI*2); ctx.fill();
             });
+
+            ctx.shadowBlur = 0; // Boshqa elementlar uchun neonni o'chirish
 
             update();
             requestAnimationFrame(draw);
