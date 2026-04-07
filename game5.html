@@ -1,164 +1,79 @@
 <!DOCTYPE html>
-<html lang="uz">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interaktiv Krossvord</title>
+    <title>Snake Game</title>
     <style>
-        :root {
-            --cell-size: 40px;
-            --bg-color: #f0f2f5;
-            --correct-color: #28a745;
-            --border-color: #333;
-        }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        .crossword-grid { display: grid; grid-template-columns: repeat(13, var(--cell-size)); grid-template-rows: repeat(11, var(--cell-size)); gap: 2px; background: #ccc; border: 2px solid var(--border-color); padding: 2px; }
-        .cell { width: var(--cell-size); height: var(--cell-size); background: white; position: relative; display: flex; align-items: center; justify-content: center; }
-        .cell.black { background: #333; }
-        .cell input { width: 100%; height: 100%; border: none; text-align: center; font-size: 20px; font-weight: bold; text-transform: uppercase; outline: none; background: transparent; cursor: pointer; }
-        .cell span { position: absolute; top: 2px; left: 2px; font-size: 11px; font-weight: bold; color: #555; pointer-events: none; }
-        .correct { background-color: var(--correct-color) !important; color: white !important; transition: 0.5s; }
-        .info { margin-top: 25px; max-width: 600px; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        h2 { color: #1a73e8; }
-        .questions-row { display: flex; gap: 30px; }
-        h4 { margin-bottom: 10px; border-bottom: 2px solid #1a73e8; display: inline-block; }
+        body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #2c3e50; color: white; flex-direction: column; font-family: sans-serif; }
+        canvas { border: 5px solid #ecf0f1; box-shadow: 0 0 20px rgba(0,0,0,0.5); background: #000; }
+        h1 { margin-bottom: 10px; }
     </style>
 </head>
 <body>
+    <h1>Iloncha O'yini</h1>
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <p>Yo'nalishni boshqarish: Strelkalar (Up, Down, Left, Right)</p>
 
-    <h2>Ilm-fan va Muvaffaqiyat Krossvordi</h2>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        let box = 20;
+        let snake = [{x: 10 * box, y: 10 * box}];
+        let food = { x: Math.floor(Math.random()*19+1)*box, y: Math.floor(Math.random()*19+1)*box };
+        let d;
 
-    <div class="crossword-grid" id="grid"></div>
-
-    <div class="info">
-        <div class="questions-row">
-            <div>
-                <h4>Eniga:</h4>
-                <p><b>1.</b> Zamaxshariyning grammatika asari.<br>
-                <b>3.</b> Cambridge markazi asoschisi.<br>
-                <b>5.</b> "Nashr etish yoki..." (halokat).<br>
-                <b>7.</b> Namangandagi til maktabi nomi.</p>
-            </div>
-            <div>
-                <h4>Bo'yiga:</h4>
-                <p><b>2.</b> Raufxon qaysi soha olimi?<br>
-                <b>4.</b> Zamaxshariy: "Faxru..."<br>
-                <b>6.</b> Ali olgan IELTS bali.</p>
-            </div>
-        </div>
-    </div>
-
-<script>
-const words = [
-    { num: 1, text: "MUFASSAL", r: 1, c: 1, dir: "H" },
-    { num: 3, text: "JAHONGIR", r: 3, c: 1, dir: "H" },
-    { num: 5, text: "HALOKAT", r: 5, c: 6, dir: "H" },
-    { num: 7, text: "IBRAT", r: 9, c: 0, dir: "H" },
-    { num: 2, text: "IQTISODCHI", r: 0, c: 3, dir: "V" },
-    { num: 4, text: "XORAZM", r: 4, c: 1, dir: "V" },
-    { num: 6, text: "YETTI", r: 6, c: 5, dir: "V" }
-];
-
-const gridContainer = document.getElementById('grid');
-const matrix = Array(11).fill().map(() => Array(13).fill(null));
-
-// Gridni qora kataklar bilan to'ldirish
-for (let i = 0; i < 11; i++) {
-    for (let j = 0; j < 13; j++) {
-        const div = document.createElement('div');
-        div.className = 'cell black';
-        div.id = `cell-${i}-${j}`;
-        gridContainer.appendChild(div);
-    }
-}
-
-// So'zlar uchun oq kataklar ochish
-words.forEach(w => {
-    for (let i = 0; i < w.text.length; i++) {
-        let r = w.dir === "H" ? w.r : w.r + i;
-        let c = w.dir === "H" ? w.c + i : w.c;
-        let cell = document.getElementById(`cell-${r}-${c}`);
-        cell.className = 'cell';
-        if (!cell.querySelector('input')) {
-            const input = document.createElement('input');
-            input.maxLength = 1;
-            input.dataset.r = r;
-            input.dataset.c = c;
-            cell.appendChild(input);
-        }
-        if (i === 0) {
-            const span = document.createElement('span');
-            span.innerText = w.num;
-            cell.appendChild(span);
-        }
-    }
-});
-
-const inputs = document.querySelectorAll('.cell input');
-
-inputs.forEach(input => {
-    input.addEventListener('input', (e) => {
-        const val = e.target.value.toUpperCase();
-        e.target.value = val;
-        
-        if (val) {
-            // Keyingi katakka o'tish
-            focusNext(input);
-        }
-        checkWords();
-    });
-
-    input.addEventListener('keydown', (e) => {
-        if (e.key === "Backspace" && !input.value) {
-            focusPrev(input);
-        }
-    });
-});
-
-function focusNext(current) {
-    const r = parseInt(current.dataset.r);
-    const c = parseInt(current.dataset.c);
-    // Avval o'ngga, keyin pastga qidiradi
-    const next = document.querySelector(`input[data-r="${r}"][data-c="${c+1}"]`) || 
-                 document.querySelector(`input[data-r="${r+1}"][data-c="${c}"]`);
-    if (next) next.focus();
-}
-
-function focusPrev(current) {
-    const r = parseInt(current.dataset.r);
-    const c = parseInt(current.dataset.c);
-    const prev = document.querySelector(`input[data-r="${r}"][data-c="${c-1}"]`) || 
-                 document.querySelector(`input[data-r="${r-1}"][data-c="${c}"]`);
-    if (prev) prev.focus();
-}
-
-function checkWords() {
-    words.forEach(w => {
-        let currentGuess = "";
-        let cells = [];
-        
-        for (let i = 0; i < w.text.length; i++) {
-            let r = w.dir === "H" ? w.r : w.r + i;
-            let c = w.dir === "H" ? w.c + i : w.c;
-            let input = document.querySelector(`input[data-r="${r}"][data-c="${c}"]`);
-            currentGuess += input.value || " ";
-            cells.push(input);
+        document.addEventListener("keydown", direction);
+        function direction(event) {
+            if(event.keyCode == 37 && d != "RIGHT") d = "LEFT";
+            else if(event.keyCode == 38 && d != "DOWN") d = "UP";
+            else if(event.keyCode == 39 && d != "LEFT") d = "RIGHT";
+            else if(event.keyCode == 40 && d != "UP") d = "DOWN";
         }
 
-        if (currentGuess === w.text) {
-            cells.forEach(c => c.parentElement.classList.add('correct'));
-        } else {
-            // Agar so'z to'liq bo'lsa-yu, xato bo'lsa xato harflarni o'chirish
-            if (!currentGuess.includes(" ")) {
-                cells.forEach((c, idx) => {
-                    if (c.value !== w.text[idx]) {
-                        c.value = ""; // Xato harfni o'chirish
-                    }
-                });
+        function draw() {
+            ctx.fillStyle = "black";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            for(let i = 0; i < snake.length; i++){
+                ctx.fillStyle = (i == 0) ? "green" : "lime";
+                ctx.fillRect(snake[i].x, snake[i].y, box, box);
             }
+
+            ctx.fillStyle = "red";
+            ctx.fillRect(food.x, food.y, box, box);
+
+            let snakeX = snake[0].x;
+            let snakeY = snake[0].y;
+
+            if( d == "LEFT") snakeX -= box;
+            if( d == "UP") snakeY -= box;
+            if( d == "RIGHT") snakeX += box;
+            if( d == "DOWN") snakeY += box;
+
+            if(snakeX == food.x && snakeY == food.y){
+                food = { x: Math.floor(Math.random()*19+1)*box, y: Math.floor(Math.random()*19+1)*box };
+            } else {
+                snake.pop();
+            }
+
+            let newHead = { x: snakeX, y: snakeY };
+
+            if(snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height || collision(newHead, snake)){
+                clearInterval(game);
+                alert("O'yin tugadi!");
+                location.reload();
+            }
+
+            snake.unshift(newHead);
         }
-    });
-}
-</script>
+
+        function collision(head, array){
+            for(let i = 0; i < array.length; i++){
+                if(head.x == array[i].x && head.y == array[i].y) return true;
+            }
+            return false;
+        }
+
+        let game = setInterval(draw, 100);
+    </script>
 </body>
 </html>
