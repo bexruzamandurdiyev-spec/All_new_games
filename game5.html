@@ -2,71 +2,77 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Mobile Snake Game</title>
     <style>
+        * { box-sizing: border-box; }
+        
         body {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
             background: #1a1a1a;
             color: white;
-            font-family: Arial, sans-serif;
+            font-family: sans-serif;
             overflow: hidden;
-            touch-action: manipulation;
+            touch-action: none; /* Sahifa qimirlab ketmasligi uchun */
         }
 
+        .score {
+            font-size: 24px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        /* O'yin maydoni o'lchami */
         canvas {
-            border: 4px solid #3498db;
+            border: 3px solid #3498db;
             background: #000;
-            box-shadow: 0 0 20px rgba(52, 152, 219, 0.5);
-            max-width: 90vw;
-            max-height: 40vh;
+            box-shadow: 0 0 15px rgba(52, 152, 219, 0.3);
+            max-width: 95vw; /* Ekran kengligining 95% qismi */
+            height: auto;    /* Proporsiyani saqlash */
         }
 
+        /* Tugmalar bloki */
         .controls {
             margin-top: 20px;
             display: grid;
-            grid-template-columns: repeat(3, 70px);
-            grid-template-rows: repeat(2, 70px);
-            gap: 10px;
-            justify-items: center;
+            grid-template-columns: repeat(3, 65px);
+            grid-template-rows: repeat(2, 65px);
+            gap: 15px;
+            padding-bottom: 20px;
         }
 
         .btn {
-            width: 70px;
-            height: 70px;
-            background: #3498db;
+            width: 65px;
+            height: 65px;
+            background: rgba(52, 152, 219, 0.8);
             border: none;
             border-radius: 50%;
             color: white;
-            font-size: 24px;
-            font-weight: bold;
+            font-size: 28px;
             display: flex;
             align-items: center;
             justify-content: center;
             user-select: none;
-            active-background: #2980b9;
+            cursor: pointer;
             box-shadow: 0 4px #2980b9;
         }
 
         .btn:active {
             transform: translateY(4px);
             box-shadow: none;
+            background: #2980b9;
         }
 
-        .up { grid-column: 2; }
+        .up { grid-column: 2; grid-row: 1; }
         .left { grid-column: 1; grid-row: 2; }
         .down { grid-column: 2; grid-row: 2; }
         .right { grid-column: 3; grid-row: 2; }
-
-        .score {
-            font-size: 20px;
-            margin-bottom: 10px;
-        }
     </style>
 </head>
 <body>
@@ -75,84 +81,50 @@
     <canvas id="gameCanvas" width="400" height="400"></canvas>
 
     <div class="controls">
-        <button class="btn up" onclick="changeDir('UP')">▲</button>
-        <button class="btn left" onclick="changeDir
-<!DOCTYPE html>
-<html lang="uz">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mobile Snake Game</title>
-    <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            background: #1a1a1a;
-            color: white;
-            font-family: Arial, sans-serif;
-            overflow: hidden;
-            touch-action: manipulation;
+        <button class="btn up" onpointerdown="changeDir('UP')">▲</button>
+        <button class="btn left" onpointerdown="changeDir('LEFT')">◀</button>
+        <button class="btn down" onpointerdown="changeDir('DOWN')">▼</button>
+        <button class="btn right" onpointerdown="changeDir('RIGHT')">▶</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const scoreElement = document.getElementById("scoreVal");
+
+        let box = 20;
+        let score = 0;
+        let snake = [{x: 9 * box, y: 10 * box}];
+        let food = { 
+            x: Math.floor(Math.random()*19)*box, 
+            y: Math.floor(Math.random()*19)*box 
+        };
+        let d = "";
+
+        function changeDir(direction) {
+            if(direction == "LEFT" && d != "RIGHT") d = "LEFT";
+            else if(direction == "UP" && d != "DOWN") d = "UP";
+            else if(direction == "RIGHT" && d != "LEFT") d = "RIGHT";
+            else if(direction == "DOWN" && d != "UP") d = "DOWN";
         }
 
-        canvas {
-            border: 4px solid #3498db;
-            background: #000;
-            box-shadow: 0 0 20px rgba(52, 152, 219, 0.5);
-            max-width: 90vw;
-            max-height: 40vh;
-        }
+        document.addEventListener("keydown", (e) => {
+            if(e.keyCode == 37 && d != "RIGHT") d = "LEFT";
+            if(e.keyCode == 38 && d != "DOWN") d = "UP";
+            if(e.keyCode == 39 && d != "LEFT") d = "RIGHT";
+            if(e.keyCode == 40 && d != "UP") d = "DOWN";
+        });
 
-        .controls {
-            margin-top: 20px;
-            display: grid;
-            grid-template-columns: repeat(3, 70px);
-            grid-template-rows: repeat(2, 70px);
-            gap: 10px;
-            justify-items: center;
-        }
+        function draw() {
+            ctx.fillStyle = "black";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        .btn {
-            width: 70px;
-            height: 70px;
-            background: #3498db;
-            border: none;
-            border-radius: 50%;
-            color: white;
-            font-size: 24px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            user-select: none;
-            active-background: #2980b9;
-            box-shadow: 0 4px #2980b9;
-        }
+            for(let i = 0; i < snake.length; i++){
+                ctx.fillStyle = (i == 0) ? "#2ecc71" : "#27ae60";
+                ctx.fillRect(snake[i].x, snake[i].y, box, box);
+                ctx.strokeStyle = "black";
+                ctx.strokeRect(snake[i].x, snake[i].y, box, box);
+            }
 
-        .btn:active {
-            transform: translateY(4px);
-            box-shadow: none;
-        }
-
-        .up { grid-column: 2; }
-        .left { grid-column: 1; grid-row: 2; }
-        .down { grid-column: 2; grid-row: 2; }
-        .right { grid-column: 3; grid-row: 2; }
-
-        .score {
-            font-size: 20px;
-            margin-bottom: 10px;
-        }
-    </style>
-</head>
-<body>
-
-    <div class="score">Ball: <span id="scoreVal">0</span></div>
-    <canvas id="gameCanvas" width="400" height="400"></canvas>
-
-    <div class="controls">
-        <button class="btn up" onclick="changeDir('UP')">▲</button>
-        <button class="btn left" onclick="changeDir
+            ctx.fillStyle = "#e74c3c";
+            ctx.fillRect(food.x, food.y
