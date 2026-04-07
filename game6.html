@@ -72,3 +72,155 @@
         }
 
         @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
+        }
+
+        button {
+            margin-top: 40px;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        button:hover {
+            background: #2980b9;
+            transform: translateY(-3px);
+        }
+    </style>
+</head>
+<body>
+
+    <h1>X ⚡ O Battle</h1>
+    <div class="status" id="status">X ning navbati</div>
+    
+    <div class="board" id="board">
+        <div class="cell" data-index="0"></div>
+        <div class="cell" data-index="1"></div>
+        <div class="cell" data-index="2"></div>
+        <div class="cell" data-index="3"></div>
+        <div class="cell" data-index="4"></div>
+        <div class="cell" data-index="5"></div>
+        <div class="cell" data-index="6"></div>
+        <div class="cell" data-index="7"></div>
+        <div class="cell" data-index="8"></div>
+    </div>
+
+    <button onclick="resetGame()">Yangi o'yin</button>
+
+    <script>
+        const boardElement = document.getElementById('board');
+        const statusElement = document.getElementById('status');
+        let currentPlayer = 'X';
+        let gameState = ["", "", "", "", "", "", "", "", ""];
+        let gameActive = true;
+
+        const winningConditions = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],
+            [0, 4, 8], [2, 4, 6]
+        ];
+
+        function handleCellClick(event) {
+            const clickedCell = event.target;
+            const clickedIndex = parseInt(clickedCell.getAttribute('data-index'));
+
+            if (gameState[clickedIndex] !== "" || !gameActive) return;
+
+            gameState[clickedIndex] = currentPlayer;
+            clickedCell.innerText = currentPlayer;
+            clickedCell.classList.add(currentPlayer.toLowerCase());
+            
+            // Urish effekti
+            clickedCell.style.transform = "scale(0.8)";
+            setTimeout(() => clickedCell.style.transform = "scale(1)", 100);
+
+            checkResult();
+        }
+
+        function checkResult() {
+            let roundWon = false;
+            let winCombo = [];
+
+            for (let i = 0; i < winningConditions.length; i++) {
+                const [a, b, c] = winningConditions[i];
+                if (gameState[a] && gameState[a] === gameState[b] && gameState[a] === gameState[c]) {
+                    roundWon = true;
+                    winCombo = [a, b, c];
+                    break;
+                }
+            }
+
+            if (roundWon) {
+                statusElement.innerText = `G'alaba! ${currentPlayer} yutdi! 🎉`;
+                statusElement.style.color = "#f1c40f";
+                gameActive = false;
+                
+                // G'olib kataklarni belgilash
+                winCombo.forEach(index => {
+                    document.querySelector(`[data-index="${index}"]`).classList.add('winner-cell');
+                });
+
+                // KONFETI EFFEKTI!
+                launchConfetti();
+                return;
+            }
+
+            if (!gameState.includes("")) {
+                statusElement.innerText = "Durang! 🤝";
+                gameActive = false;
+                return;
+            }
+
+            currentPlayer = currentPlayer === "X" ? "O" : "X";
+            statusElement.innerText = `${currentPlayer} ning navbati`;
+        }
+
+        function launchConfetti() {
+            var duration = 3 * 1000;
+            var end = Date.now() + duration;
+
+            (function frame() {
+              confetti({
+                particleCount: 3,
+                angle: 60,
+                spread: 55,
+                origin: { x: 0 },
+                colors: ['#ff4757', '#2ed573', '#3498db']
+              });
+              confetti({
+                particleCount: 3,
+                angle: 120,
+                spread: 55,
+                origin: { x: 1 },
+                colors: ['#ff4757', '#2ed573', '#3498db']
+              });
+
+              if (Date.now() < end) {
+                requestAnimationFrame(frame);
+              }
+            }());
+        }
+
+        function resetGame() {
+            currentPlayer = "X";
+            gameState = ["", "", "", "", "", "", "", "", ""];
+            gameActive = true;
+            statusElement.innerText = "X ning navbati";
+            statusElement.style.color = "white";
+            document.querySelectorAll('.cell').forEach(cell => {
+                cell.innerText = "";
+                cell.classList.remove('x', 'o', 'winner-cell');
+            });
+        }
+
+        boardElement.addEventListener('click', handleCellClick);
+    </script>
+</body>
+</html>
