@@ -2,93 +2,201 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shukur Xolmirzayev Ijodi - Neon Krossvord</title>
+    <title>Shukur Xolmirzayev - Kiber Krossvord</title>
     <style>
         :root {
-            --neon-blue: #00f3ff;
-            --neon-purple: #bc13fe;
-            --bg-color: #0a0a0c;
+            --neon-cyan: #00f3ff;
+            --neon-pink: #ff00ff;
+            --bg: #050505;
         }
 
         body {
-            background-color: var(--bg-color);
-            color: white;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
+            min-height: 100vh;
+            margin: 0;
             padding: 20px;
         }
 
         h1 {
-            text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue);
-            color: var(--neon-blue);
+            color: var(--neon-cyan);
+            text-shadow: 0 0 15px var(--neon-cyan);
             text-transform: uppercase;
-            letter-spacing: 3px;
+            letter-spacing: 5px;
         }
 
-        .container {
+        .main-container {
             display: flex;
-            gap: 40px;
+            gap: 50px;
             flex-wrap: wrap;
             justify-content: center;
-            margin-top: 30px;
+            margin-top: 20px;
         }
 
-        .questions {
-            max-width: 400px;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 20px;
-            border-radius: 15px;
-            border: 1px solid var(--neon-purple);
-            box-shadow: 0 0 15px rgba(188, 19, 254, 0.3);
-        }
-
-        .questions h3 {
-            color: var(--neon-purple);
-            border-bottom: 1px solid var(--neon-purple);
-            padding-bottom: 10px;
-        }
-
-        ol { padding-left: 20px; }
-        li { margin-bottom: 10px; font-size: 14px; line-height: 1.4; }
-
-        .crossword-grid {
+        /* Krossvord Setkasi */
+        .crossword-board {
             display: grid;
-            grid-template-columns: repeat(12, 35px);
-            grid-template-rows: repeat(12, 35px);
-            gap: 5px;
-            background: #111;
+            grid-template-columns: repeat(12, 40px);
+            grid-template-rows: repeat(12, 40px);
+            gap: 4px;
+            background: rgba(0, 243, 255, 0.1);
             padding: 10px;
-            border: 2px solid var(--neon-blue);
-            box-shadow: 0 0 20px var(--neon-blue);
+            border: 2px solid var(--neon-cyan);
+            box-shadow: 0 0 20px var(--neon-cyan);
         }
 
         .cell {
-            width: 35px;
-            height: 35px;
-            background: #1a1a1a;
+            width: 40px;
+            height: 40px;
+            background: transparent;
             border: 1px solid #333;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            text-align: center;
+            font-size: 20px;
             font-weight: bold;
+            color: white;
             text-transform: uppercase;
+            outline: none;
             transition: 0.3s;
         }
 
-        .cell:focus {
-            outline: none;
-            background: #222;
-            border: 1px solid var(--neon-blue);
-            box-shadow: inset 0 0 5px var(--neon-blue);
+        .cell.active {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--neon-pink);
         }
 
-        .active-cell {
-            background: #222;
+        .cell.active:focus {
+            background: rgba(255, 0, 255, 0.2);
+            box-shadow: 0 0 10px var(--neon-pink);
+        }
+
+        .correct { border-color: #00ff00 !important; box-shadow: 0 0 10px #00ff00; }
+        .wrong { border-color: #ff0000 !important; box-shadow: 0 0 10px #ff0000; }
+
+        /* Savollar qismi */
+        .questions-box {
+            max-width: 450px;
+            background: #111;
+            padding: 20px;
+            border-left: 4px solid var(--neon-pink);
+            box-shadow: -10px 0 20px rgba(255, 0, 255, 0.2);
+        }
+
+        .questions-box h2 { color: var(--neon-pink); font-size: 1.2rem; }
+        
+        .q-list { height: 400px; overflow-y: auto; padding-right: 10px; }
+        .q-item { margin-bottom: 15px; font-size: 0.9rem; line-height: 1.4; color: #ccc; }
+        .q-item b { color: var(--neon-cyan); }
+
+        .btn-check {
+            margin-top: 30px;
+            padding: 15px 40px;
+            background: transparent;
+            color: var(--neon-cyan);
+            border: 2px solid var(--neon-cyan);
+            font-size: 18px;
             cursor: pointer;
+            transition: 0.4s;
+            letter-spacing: 2px;
         }
 
-        .active-cell:hover {
-            box-shadow: 0 0 10px var
+        .btn-check:hover {
+            background: var(--neon-cyan);
+            color: #000;
+            box-shadow: 0 0 30px var(--neon-cyan);
+        }
+
+        /* Bo'sh kataklar uchun */
+        .empty { visibility: hidden; }
+    </style>
+</head>
+<body>
+
+    <h1>SHUKUR XOLMIRZAYEV KROSSVORD</h1>
+
+    <div class="main-container">
+        <div class="crossword-board" id="board">
+            </div>
+
+        <div class="questions-box">
+            <h2>SAVOLLAR</h2>
+            <div class="q-list">
+                <div class="q-item"><b>1.</b> Adib tug'ilgan viloyat? (11 harf)</div>
+                <div class="q-item"><b>2.</b> Milliy o'zbek o'yini? (7 harf)</div>
+                <div class="q-item"><b>3.</b> Loydan yasalgan qurilish materiali? (6 harf)</div>
+                <div class="q-item"><b>4.</b> Opaning eri, pochcha? (5 harf)</div>
+                <div class="q-item"><b>5.</b> Qo'ylar saqlanadigan joy? (4 harf)</div>
+                <div class="q-item"><b>6.</b> Yetilmagan qovun? (6 harf)</div>
+                <div class="q-item"><b>7.</b> Adib tug'ilgan tuman? (6 harf)</div>
+            </div>
+        </div>
+    </div>
+
+    <button class="btn-check" onclick="checkCrossword()">TEKSHIRISH</button>
+
+    <script>
+        // Krossvord strukturasi (R, C, Javob)
+        const answers = [
+            { r: 1, c: 1, word: "SURXONDARYO" },
+            { r: 3, c: 1, word: "CHILLAK" },
+            { r: 5, c: 1, word: "GUVALA" },
+            { r: 7, c: 1, word: "YAZNA" },
+            { r: 9, c: 1, word: "QORA" },
+            { r: 11, c: 1, word: "TUYNAK" },
+            { r: 1, c: 1, word: "BOYSUN", dir: "down" }
+        ];
+
+        const board = document.getElementById('board');
+        const cells = {};
+
+        // 12x12 grid yaratish
+        for (let r = 0; r < 12; r++) {
+            for (let c = 0; c < 12; c++) {
+                const input = document.createElement('input');
+                input.className = 'cell empty';
+                input.dataset.row = r;
+                input.dataset.col = c;
+                input.maxLength = 1;
+                board.appendChild(input);
+                cells[`${r}-${c}`] = input;
+            }
+        }
+
+        // Aktiv kataklarni belgilash
+        answers.forEach(a => {
+            for (let i = 0; i < a.word.length; i++) {
+                let r = a.dir === "down" ? a.r + i : a.r;
+                let c = a.dir === "down" ? a.c : a.c + i;
+                let cell = cells[`${r}-${c}`];
+                cell.className = 'cell active';
+                cell.dataset.answer = a.word[i];
+            }
+        });
+
+        // Avtomatik keyingi katakka o'tish
+        document.querySelectorAll('.cell.active').forEach(cell => {
+            cell.addEventListener('input', function() {
+                if (this.value.length === 1) {
+                    let next = cells[`${this.dataset.row}-${parseInt(this.dataset.col) + 1}`];
+                    if (next && next.classList.contains('active')) next.focus();
+                }
+            });
+        });
+
+        function checkCrossword() {
+            document.querySelectorAll('.cell.active').forEach(cell => {
+                if (cell.value.toUpperCase() === cell.dataset.answer) {
+                    cell.classList.add('correct');
+                    cell.classList.remove('wrong');
+                } else {
+                    cell.classList.add('wrong');
+                    cell.classList.remove('correct');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
