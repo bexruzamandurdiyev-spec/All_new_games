@@ -2,214 +2,200 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Brawl Mini: Perfect Edition</title>
+    <title>Interaktiv Tarix Testi</title>
     <style>
-        body { margin: 0; background: #020617; overflow: hidden; touch-action: none; font-family: 'Segoe UI', sans-serif; user-select: none; }
-        canvas { display: block; background: #0f172a; }
-        
-        /* Joysticklar */
-        .joystick { position: absolute; width: 80px; height: 80px; background: rgba(255,255,255,0.05); border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); z-index: 10; }
-        .handle { position: absolute; width: 34px; height: 34px; background: rgba(255,255,255,0.4); border-radius: 50%; top: 23px; left: 23px; pointer-events: none; }
-        
-        /* Tugmalar */
-        .btn { position: absolute; width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; border: 2px solid #000; z-index: 10; cursor: pointer; box-shadow: 0 4px #000; font-size: 9px; text-align: center; }
-        .btn:active { transform: scale(0.9); box-shadow: 0 2px #000; }
-        
-        #move1 { bottom: 20px; left: 20px; } #aim1 { bottom: 20px; left: 115px; border-color: #ef4444; }
-        #g1 { bottom: 105px; left: 20px; background: #f59e0b; } #u1 { bottom: 105px; left: 115px; background: #eab308; }
-        
-        #move2 { bottom: 20px; right: 115px; } #aim2 { bottom: 20px; right: 20px; border-color: #3b82f6; }
-        #g2 { bottom: 105px; right: 115px; background: #f59e0b; } #u2 { bottom: 105px; right: 20px; background: #eab308; }
+        :root {
+            --dark: #0f172a;
+            --gold: #fbbf24;
+            --correct: #22c55e;
+            --wrong: #ef4444;
+            --card: #1e293b;
+        }
 
-        /* G'alaba ekrani */
-        #win { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; flex-direction: column; align-items: center; justify-content: center; color: white; z-index: 100; }
-        #win h1 { font-size: 40px; margin-bottom: 20px; text-shadow: 0 0 20px #fff; }
-        #win button { padding: 12px 30px; font-size: 18px; font-weight: bold; background: #22c55e; border: none; border-radius: 8px; color: white; cursor: pointer; }
+        body {
+            background-color: var(--dark);
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { color: var(--gold); font-size: 32px; margin-bottom: 5px; }
+
+        /* Savol raqamlari paneli */
+        .number-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 10px;
+            max-width: 600px;
+            margin-bottom: 40px;
+        }
+
+        .num-btn {
+            width: 50px;
+            height: 50px;
+            background: var(--card);
+            border: 2px solid #334155;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 18px;
+            transition: 0.3s;
+        }
+
+        .num-btn:hover { border-color: var(--gold); }
+        .num-btn.answered { background: #334155; opacity: 0.6; border-color: var(--gold); }
+
+        /* Test oynasi */
+        .test-box {
+            display: none;
+            width: 100%;
+            max-width: 700px;
+            background: var(--card);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .question-text { font-size: 22px; margin-bottom: 25px; line-height: 1.4; border-left: 5px solid var(--gold); padding-left: 15px; }
+
+        .options { display: grid; gap: 12px; }
+
+        .option {
+            background: #2d3748;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .option:hover { background: #3d4a5d; }
+
+        /* To'g'ri va noto'g'ri ranglar */
+        .option.correct { background: var(--correct) !important; color: white; font-weight: bold; }
+        .option.wrong { background: var(--wrong) !important; color: white; }
+        
+        .disabled { pointer-events: none; }
+
+        .result-msg { margin-top: 20px; font-weight: bold; font-size: 18px; display: none; }
+        
+        .close-test { margin-top: 25px; background: var(--gold); color: black; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div id="win"><h1 id="winTxt">G'ALABA!</h1><button onclick="location.reload()">QAYTA O'YNASH</button></div>
-<canvas id="game"></canvas>
+    <div class="header">
+        <h1>XIII-XV Asrlar Madaniyati: Test</h1>
+        <p>Savol raqamini tanlang va to'g'ri javobni belgilang</p>
+    </div>
 
-<div class="joystick" id="move1"><div class="handle"></div></div>
-<div class="joystick" id="aim1"><div class="handle"></div></div>
-<div class="btn" id="g1">GADGET</div><div class="btn" id="u1">ULTRA</div>
+    <div class="number-grid" id="numGrid"></div>
 
-<div class="joystick" id="move2"><div class="handle"></div></div>
-<div class="joystick" id="aim2"><div class="handle"></div></div>
-<div class="btn" id="g2">GADGET</div><div class="btn" id="u2">ULTRA</div>
+    <div class="test-box" id="testBox">
+        <div class="question-text" id="qText"></div>
+        <div class="options" id="optContainer"></div>
+        <div class="result-msg" id="resMsg"></div>
+        <button class="close-test" onclick="hideTest()">Savollar ro'yxatiga qaytish</button>
+    </div>
 
-<script>
-const canvas = document.getElementById('game');
-const ctx = canvas.getContext('2d');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+    <script>
+        const questions = [
+            { q: "Mirzo Ulug'bek tomonidan yozilgan eng mashhur astronomik asar qaysi?", a: "Ziji Jadidi Ko'ragoniy", b: "Zafarnoma", c: "Xamsa", correct: "a" },
+            { q: "Turkiy tilda 'Xamsa' yaratgan birinchi shoir kim?", a: "Firdavsiy", b: "Alisher Navoiy", c: "Lutfiy", correct: "b" },
+            { q: "Tarixdagi eng boy inson sanalgan Mali imperatori?", a: "Mansa Musa", b: "Ibn Battuta", c: "Sundiata Keyta", correct: "a" },
+            { q: "Inklar davlatida tugunli iplardan iborat yozuv tizimi nima deyiladi?", a: "Iyeroglif", b: "Kip (Quipu)", c: "Piktogramma", correct: "b" },
+            { q: "Asteklarning suv ustida qurilgan mahobatli poytaxti nomi?", a: "Machu Pikchu", b: "Chichen Itsa", c: "Tenochtitlan", correct: "c" },
+            { q: "Matematikada 'Nol' raqamini kashf etgan Amerika xalqi?", a: "Inklar", b: "Mayyalar", c: "Asteklar", correct: "b" },
+            { q: "Dehli sultonligida qurilgan eng baland g'ishtli minora?", a: "Qutub Minor", b: "Kalon minorasi", c: "Esh minorasi", correct: "a" },
+            { q: "Hirot miniatyura maktabining eng buyuk vakili?", a: "Kamoliddin Behzod", b: "Mani", c: "Rizo Abbosiy", correct: "a" },
+            { q: "O'nli kasrlarni birinchi bo'lib fanga kiritgan Samarqandlik olim?", a: "Ali Qushchi", b: "Jamshid al-Koshiy", c: "Mirzo Ulug'bek", correct: "b" },
+            { q: "And tog'larida joylashgan Inkalarning 'yo'qolgan shahri'?", a: "Kusko", b: "Machu Pikchu", c: "Teno", correct: "b" },
+            { q: "Afrika me'morchiligida loy ishlatmay toshdan qurilgan shahar?", a: "Timbuktu", b: "Qohira", c: "Buyuk Zimbabve", correct: "c" },
+            { q: "Amir Temur davrida Samarqandda qurilgan eng ulkan masjid?", a: "Bibixonim", b: "Hazrati Imom", c: "Ko'k Gumbaz", correct: "a" },
+            { q: "XV asrda Xitoyda yaratilgan ulkan ensiklopediya?", a: "Yongle", b: "Sun", c: "Min", correct: "a" },
+            { q: "Afrikadagi Sankore universiteti qaysi ilm-fan shahrida joylashgan?", a: "Mogadisho", b: "Timbuktu", c: "Marokash", correct: "b" },
+            { q: "XV asrda dengizlar orqali sayohat qilgan Xitoy admirali?", a: "Konfutsiy", b: "Chjen Xe", c: "Lao Szi", correct: "b" },
+            { q: "Amir Temur hayotiga bag'ishlangan Sharafiddin Ali Yazdiy asari?", a: "Zafarnoma", b: "Tarixi Rashidiy", c: "Boburnoma", correct: "a" },
+            { q: "Mayyalarning piramidasi qanday asosiy vazifani bajargan?", a: "Saroy", b: "Taqvim/Kalendar", c: "Kutubxona", correct: "b" },
+            { q: "Registon maydonidagi birinchi madrasani kim qurdirgan?", a: "Amir Temur", b: "Mirzo Ulug'bek", c: "Yalangto'sh Bahodir", correct: "b" },
+            { q: "G'arbiy Afrikadagi yetti shahar-davlatdan iborat sivilizatsiya?", a: "Havsa", b: "Mali", c: "Songay", correct: "a" },
+            { q: "Sharqdan Ipak yo'li orqali G'arbga o'tgan eng muhim ixtirolar?", a: "Kompyuter", b: "Qog'oz va Porox", c: "Avtomobil", correct: "b" }
+        ];
 
-const R = 22; 
-let gameOver = false;
-let keys = {};
+        const numGrid = document.getElementById('numGrid');
+        const testBox = document.getElementById('testBox');
+        const qText = document.getElementById('qText');
+        const optContainer = document.getElementById('optContainer');
+        const resMsg = document.getElementById('resMsg');
 
-window.onkeydown = e => keys[e.code] = true;
-window.onkeyup = e => {
-    keys[e.code] = false;
-    if(e.code === 'Space') shoot(p1);
-    if(e.code === 'Enter') shoot(p2);
-    if(e.code === 'KeyQ') useUltra(p1);
-    if(e.code === 'KeyM') useUltra(p2);
-    if(e.code === 'KeyE') useGadget(p1);
-    if(e.code === 'KeyK') useGadget(p2);
-};
-
-function createPlayer(id, x, c) {
-    return { id, x, y: canvas.height/2, c, hp: 3200, ammo: 3, vx: 0, vy: 0, ang: id===1?0:Math.PI, super: 0, gadget: 3, isAim: false };
-}
-
-let p1 = createPlayer(1, 150, '#ef4444');
-let p2 = createPlayer(2, canvas.width - 150, '#3b82f6');
-let bullets = [];
-let walls = [
-    {x: canvas.width/2 - 25, y: 150, w: 50, h: 200},
-    {x: canvas.width/2 - 25, y: canvas.height - 350, w: 50, h: 200}
-];
-
-// O'q otish funksiyasi
-function shoot(p, isG = false, isS = false) {
-    if(gameOver || (!isS && p.ammo < 1)) return;
-    bullets.push({
-        x: p.x, y: p.y,
-        vx: Math.cos(p.ang) * (isS ? 15 : 12),
-        vy: Math.sin(p.ang) * (isS ? 15 : 12),
-        owner: p, isG, isS,
-        color: isS ? '#facc15' : (isG ? '#f59e0b' : 'white')
-    });
-    if(!isS) p.ammo--;
-}
-
-function useGadget(p) { if(p.gadget > 0) { p.gadget--; shoot(p, true); } }
-function useUltra(p) { 
-    if(p.super >= 100) { 
-        p.super = 0; 
-        for(let i=0; i<8; i++) setTimeout(() => shoot(p, true, true), i * 100);
-    } 
-}
-
-// Joystick sozlamalari
-function setupJoy(id, p, type) {
-    const el = document.getElementById(id);
-    const h = el.querySelector('.handle');
-    el.addEventListener('touchstart', e => { e.preventDefault(); if(type==='aim') p.isAim = true; });
-    el.addEventListener('touchmove', e => {
-        e.preventDefault();
-        const t = e.touches[0];
-        const rect = el.getBoundingClientRect();
-        let dx = t.clientX - (rect.left + 40);
-        let dy = t.clientY - (rect.top + 40);
-        const d = Math.sqrt(dx*dx + dy*dy);
-        if(d > 35) { dx *= 35/d; dy *= 35/d; }
-        h.style.transform = `translate(${dx}px, ${dy}px)`;
-        p.ang = Math.atan2(dy, dx);
-        if(type === 'move') { p.vx = (dx/35)*5; p.vy = (dy/35)*5; }
-    });
-    el.addEventListener('touchend', () => {
-        h.style.transform = 'translate(0,0)';
-        if(type === 'aim') { shoot(p); p.isAim = false; }
-        else { p.vx = 0; p.vy = 0; }
-    });
-}
-
-setupJoy('move1', p1, 'move'); setupJoy('aim1', p1, 'aim');
-setupJoy('move2', p2, 'move'); setupJoy('aim2', p2, 'aim');
-document.getElementById('g1').onclick = () => useGadget(p1);
-document.getElementById('u1').onclick = () => useUltra(p1);
-document.getElementById('g2').onclick = () => useGadget(p2);
-document.getElementById('u2').onclick = () => useUltra(p2);
-
-function isWall(nx, ny) {
-    for(let w of walls) {
-        if(nx+R > w.x && nx-R < w.x+w.w && ny+R > w.y && ny-R < w.y+w.h) return true;
-    }
-    return false;
-}
-
-function update() {
-    if(gameOver) return;
-
-    [p1, p2].forEach(p => {
-        // Klaviatura harakati (agar joystick bo'sh boolsa)
-        let mx = p.vx, my = p.vy;
-        if(!mx && !my) {
-            if(p.id===1) {
-                if(keys['KeyW']) my=-5; if(keys['KeyS']) my=5;
-                if(keys['KeyA']) mx=-5; if(keys['KeyD']) mx=5;
-            } else {
-                if(keys['ArrowUp']) my=-5; if(keys['ArrowDown']) my=5;
-                if(keys['ArrowLeft']) mx=-5; if(keys['ArrowRight']) mx=5;
-            }
-        }
-
-        if(mx || my) {
-            if(!p.isAim) p.ang = Math.atan2(my, mx);
-            if(!isWall(p.x + mx, p.y)) p.x += mx;
-            if(!isWall(p.x, p.y + my)) p.y += my;
-        }
-
-        p.x = Math.max(R, Math.min(canvas.width-R, p.x));
-        p.y = Math.max(R, Math.min(canvas.height-R, p.y));
-        if(p.ammo < 3) p.ammo += 0.015;
-
-        if(p.hp <= 0) {
-            gameOver = true;
-            document.getElementById('win').style.display = 'flex';
-            document.getElementById('winTxt').innerText = (p.id === 1 ? "KO'K" : "QIZIL") + " G'ALABA QILDI!";
-            document.getElementById('winTxt').style.color = p.id === 1 ? "#3b82f6" : "#ef4444";
-        }
-    });
-
-    bullets.forEach((b, i) => {
-        b.x += b.vx; b.y += b.vy;
-        let enemy = b.owner === p1 ? p2 : p1;
-        if(Math.hypot(b.x-enemy.x, b.y-enemy.y) < R) {
-            enemy.hp -= 400; b.owner.super = Math.min(100, b.owner.super + 15);
-            bullets.splice(i, 1);
-        }
-        walls.forEach((w, wi) => {
-            if(b.x > w.x && b.x < w.x+w.w && b.y > w.y && b.y < w.y+w.h) {
-                if(b.isG || b.isS) walls.splice(wi, 1);
-                bullets.splice(i, 1);
-            }
+        // Raqamlarni yaratish
+        questions.forEach((_, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'num-btn';
+            btn.id = 'btn-' + i;
+            btn.innerText = i + 1;
+            btn.onclick = () => showQuestion(i);
+            numGrid.appendChild(btn);
         });
-        if(b.x<0 || b.x>canvas.width || b.y<0 || b.y>canvas.height) bullets.splice(i,1);
-    });
 
-    draw();
-    requestAnimationFrame(update);
-}
+        function showQuestion(index) {
+            const question = questions[index];
+            qText.innerText = (index + 1) + ". " + question.q;
+            resMsg.style.display = 'none';
+            optContainer.innerHTML = '';
+            numGrid.style.display = 'none';
+            testBox.style.display = 'block';
 
-function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#334155'; walls.forEach(w => ctx.fillRect(w.x, w.y, w.w, w.h));
-    
-    [p1, p2].forEach(p => {
-        ctx.fillStyle = p.c; ctx.beginPath(); ctx.arc(p.x, p.y, R, 0, Math.PI*2); ctx.fill();
-        ctx.strokeStyle = p.super >= 100 ? '#facc15' : 'black'; ctx.lineWidth = 3; ctx.stroke();
-        
-        // UI
-        ctx.fillStyle = 'black'; ctx.fillRect(p.x-25, p.y-45, 50, 6);
-        ctx.fillStyle = '#22c55e'; ctx.fillRect(p.x-25, p.y-45, (Math.max(0, p.hp)/3200)*50, 6);
-        ctx.fillStyle = '#facc15'; ctx.fillRect(p.x-25, p.y-37, (p.super/100)*50, 4);
-        
-        if(p.isAim) {
-            ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.setLineDash([5,5]);
-            ctx.beginPath(); ctx.moveTo(p.x, p.y);
-            ctx.lineTo(p.x + Math.cos(p.ang)*100, p.y + Math.sin(p.ang)*100);
-            ctx.stroke(); ctx.setLineDash([]);
+            // Variantlarni yaratish
+            const options = [
+                { id: 'a', text: question.a },
+                { id: 'b', text: question.b },
+                { id: 'c', text: question.c }
+            ];
+
+            options.forEach(opt => {
+                const div = document.createElement('div');
+                div.className = 'option';
+                div.innerText = opt.id.toUpperCase() + ") " + opt.text;
+                div.onclick = () => checkAnswer(div, opt.id, question.correct, index);
+                optContainer.appendChild(div);
+            });
         }
-    });
-    bullets.forEach(b => { ctx.fillStyle = b.color; ctx.beginPath(); ctx.arc(b.x, b.y, 6, 0, Math.PI*2); ctx.fill(); });
-}
-update();
-</script>
+
+        function checkAnswer(element, selected, correct, index) {
+            const allOptions = document.querySelectorAll('.option');
+            allOptions.forEach(o => o.classList.add('disabled'));
+
+            if (selected === correct) {
+                element.classList.add('correct');
+                resMsg.innerText = "To'g'ri topdingiz! Barakalla.";
+                resMsg.style.color = "var(--correct)";
+            } else {
+                element.classList.add('wrong');
+                allOptions.forEach(o => {
+                    if(o.innerText.toLowerCase().startsWith(correct)) o.classList.add('correct');
+                });
+                resMsg.innerText = "Noto'g'ri. To'g'ri javob ko'rsatildi.";
+                resMsg.style.color = "var(--wrong)";
+            }
+            resMsg.style.display = 'block';
+            document.getElementById('btn-' + index).classList.add('answered');
+        }
+
+        function hideTest() {
+            testBox.style.display = 'none';
+            numGrid.style.display = 'grid';
+        }
+    </script>
 </body>
 </html>
