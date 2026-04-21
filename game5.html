@@ -3,212 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Snake Master Pro</title>
+    <title>Brawl Mini: Final Fixed</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background: #0f0f0f;
-            color: #00ff00;
-            font-family: 'Courier New', Courier, monospace;
-            height: 100vh;
-            width: 100vw;
-            overflow: hidden;
-            touch-action: none;
-        }
+        body { margin: 0; background: #0f172a; overflow: hidden; touch-action: none; font-family: sans-serif; }
+        canvas { display: block; background: #1e293b; }
+        .joystick { position: absolute; width: 80px; height: 80px; background: rgba(255,255,255,0.1); border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); z-index: 10; }
+        .handle { position: absolute; width: 34px; height: 34px; background: rgba(255,255,255,0.5); border-radius: 50%; top: 23px; left: 23px; pointer-events: none; }
+        .btn { position: absolute; width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; border: 2px solid #000; z-index: 10; cursor: pointer; box-shadow: 0 4px #000; font-size: 10px; }
+       
+        #move1 { bottom: 20px; left: 20px; } #aim1 { bottom: 20px; left: 110px; }
+        #g1 { bottom: 100px; left: 20px; background: #f59e0b; } #u1 { bottom: 100px; left: 110px; background: #eab308; }
+       
+        #move2 { bottom: 20px; right: 110px; } #aim2 { bottom: 20px; right: 20px; }
+        #g2 { bottom: 100px; right: 110px; background: #f59e0b; } #u2 { bottom: 100px; right: 20px; background: #eab308; }
 
-        .header {
-            height: 10vh;
-            display: flex;
-            align-items: center;
-            font-size: 28px;
-            font-weight: bold;
-            text-shadow: 0 0 10px #00ff00;
-        }
-
-        /* Yutqazgandagi titrash */
-        .shake { animation: shakeAnim 0.4s; }
-        @keyframes shakeAnim {
-            0% { transform: translate(2px, 2px); }
-            25% { transform: translate(-2px, -2px); }
-            50% { transform: translate(2px, -2px); }
-            75% { transform: translate(-2px, 2px); }
-            100% { transform: translate(0, 0); }
-        }
-
-        #gameCanvas {
-            border: 2px solid #00ff00;
-            background: #000;
-            max-width: 90vw;
-            max-height: 45vh;
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
-        }
-
-        /* Game Over Paneli */
-        #menu {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.95);
-            padding: 40px;
-            border: 3px solid #ff0000;
-            text-align: center;
-            z-index: 100;
-            border-radius: 15px;
-        }
-
-        #menu h2 { color: #ff0000; font-size: 35px; margin-bottom: 10px; }
-        #menu p { color: white; font-size: 20px; margin-bottom: 20px; }
-        .restart-btn {
-            background: #ff0000;
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            font-size: 18px;
-            font-weight: bold;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        /* Tugmalar */
-        .controls {
-            height: 40vh;
-            display: grid;
-            grid-template-columns: repeat(3, 80px);
-            grid-template-rows: repeat(2, 80px);
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .btn {
-            width: 80px;
-            height: 80px;
-            background: rgba(0, 255, 0, 0.1);
-            border: 2px solid #00ff00;
-            border-radius: 50%;
-            color: #00ff00;
-            font-size: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            user-select: none;
-        }
-
-        .btn:active { background: #00ff00; color: black; }
-
-        .up { grid-column: 2; }
-        .left { grid-column: 1; grid-row: 2; }
-        .down { grid-column: 2; grid-row: 2; }
-        .right { grid-column: 3; grid-row: 2; }
+        #win { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; flex-direction: column; align-items: center; justify-content: center; color: white; z-index: 100; }
     </style>
 </head>
-<body id="mainBody">
+<body>
 
-    <div class="header">SCORE: <span id="scoreText">0</span></div>
+<div id="win"><h1 id="winTxt"></h1><button onclick="location.reload()" style="padding:10px 20px; cursor:pointer;">Yana o'ynash</button></div>
+<canvas id="game"></canvas>
 
-    <canvas id="gameCanvas" width="400" height="400"></canvas>
+<div class="joystick" id="move1"><div class="handle"></div></div>
+<div class="joystick" id="aim1"><div class="handle"></div></div>
+<div class="btn" id="g1">GADGET</div><div class="btn" id="u1">SUPER</div>
 
-    <div id="menu">
-        <h2>LOSE!</h2>
-        <p>Ballingiz: <span id="finalScoreText">0</span></p>
-        <button class="restart-btn" onclick="location.reload()">RESTART</button>
-    </div>
+<div class="joystick" id="move2"><div class="handle"></div></div>
+<div class="joystick" id="aim2"><div class="handle"></div></div>
+<div class="btn" id="g2">GADGET</div><div class="btn" id="u2">SUPER</div>
 
-    <div class="controls">
-        <button class="btn up" onpointerdown="move('UP')">▲</button>
-        <button class="btn left" onpointerdown="move('LEFT')">◀</button>
-        <button class="btn down" onpointerdown="move('DOWN')">▼</button>
-        <button class="btn right" onpointerdown="move('RIGHT')">▶</button>
-    </div>
+<script>
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
-    <script>
-        const canvas = document.getElementById("gameCanvas");
-        const ctx = canvas.getContext("2d");
-        const scoreDisplay = document.getElementById("scoreText");
-        const finalScoreDisplay = document.getElementById("finalScoreText");
-        const menu = document.getElementById("menu");
-        const body = document.getElementById("mainBody");
+const R = 22;
+let gameOver = false;
+let keys = {};
 
-        let box = 20;
-        let score = 0;
-        let snake = [{x: 10 * box, y: 10 * box}];
-        let food = { x: 5 * box, y: 5 * box };
-        let dir = "";
-        let isGameOver = false;
+window.addEventListener('keydown', e => keys[e.code] = true);
+window.addEventListener('keyup', e => keys[e.code] = false);
 
-        function move(d) {
-            if (isGameOver) return;
-            if (d == "LEFT" && dir != "RIGHT") dir = "LEFT";
-            if (d == "UP" && dir != "DOWN") dir = "UP";
-            if (d == "RIGHT" && dir != "LEFT") dir = "RIGHT";
-            if (d == "DOWN" && dir != "UP") dir = "DOWN";
+function createP(id, x, c) {
+    return { id, x, y: canvas.height/2, c, hp: 3200, ammo: 3, vx: 0, vy: 0, ang: 0, super: 0, gadget: 3, isAim: false };
+}
+
+let p1 = createP(1, 100, '#dc2626');
+let p2 = createP(2, canvas.width - 100, '#2563eb');
+let bullets = [];
+let walls = [
+    {x: canvas.width/2 - 25, y: 150, w: 50, h: 200},
+    {x: canvas.width/2 - 25, y: canvas.height - 350, w: 50, h: 200}
+];
+
+function setupJoy(id, p, type) {
+    const el = document.getElementById(id);
+    const h = el.querySelector('.handle');
+    el.addEventListener('touchmove', e => {
+        e.preventDefault();
+        const t = e.touches[0];
+        const rect = el.getBoundingClientRect();
+        let dx = t.clientX - (rect.left + 40);
+        let dy = t.clientY - (rect.top + 40);
+        const d = Math.sqrt(dx*dx + dy*dy);
+        if(d > 35) { dx *= 35/d; dy *= 35/d; }
+        h.style.transform = `translate(${dx}px, ${dy}px)`;
+        if(type === 'aim') { p.isAim = true; p.ang = Math.atan2(dy, dx); }
+        else { p.vx = (dx/35)*5; p.vy = (dy/35)*5; }
+    });
+    el.addEventListener('touchend', () => {
+        h.style.transform = 'translate(0,0)';
+        if(type === 'aim') { if(p.isAim) shoot(p); p.isAim = false; }
+        else { p.vx = 0; p.vy = 0; }
+    });
+}
+
+setupJoy('move1', p1, 'move'); setupJoy('aim1', p1, 'aim');
+setupJoy('move2', p2, 'move'); setupJoy('aim2', p2, 'aim');
+
+function shoot(p, isG = false, isS = false) {
+    if(p.ammo < 1 && !isS) return;
+    bullets.push({ x: p.x, y: p.y, vx: Math.cos(p.ang)*(isS?15:12), vy: Math.sin(p.ang)*(isS?15:12), owner: p, isG, isS });
+    if(!isS) p.ammo--;
+}
+
+document.getElementById('g1').onclick = () => { if(p1.gadget > 0) { p1.gadget--; shoot(p1, true); } };
+document.getElementById('u1').onclick = () => { if(p1.super >= 100) { p1.super = 0; for(let i=0; i<8; i++) setTimeout(()=>shoot(p1,true,true), i*100); } };
+document.getElementById('g2').onclick = () => { if(p2.gadget > 0) { p2.gadget--; shoot(p2, true); } };
+document.getElementById('u2').onclick = () => { if(p2.super >= 100) { p2.super = 0; for(let i=0; i<8; i++) setTimeout(()=>shoot(p2,true,true), i*100); } };
+
+function collide(nx, ny) {
+    for(let w of walls) {
+        if(nx+R > w.x && nx-R < w.x+w.w && ny+R > w.y && ny-R < w.y+w.h) return true;
+    }
+    return false;
+}
+
+function update() {
+    if(gameOver) return;
+
+    [p1, p2].forEach(p => {
+        // Harakatni boshqarish
+        let moveX = p.vx, moveY = p.vy;
+        if(p.id === 1 && !p.vx && !p.vy) {
+            if(keys['KeyW']) moveY = -5; if(keys['KeyS']) moveY = 5;
+            if(keys['KeyA']) moveX = -5; if(keys['KeyD']) moveX = 5;
+        } else if(p.id === 2 && !p.vx && !p.vy) {
+            if(keys['ArrowUp']) moveY = -5; if(keys['ArrowDown']) moveY = 5;
+            if(keys['ArrowLeft']) moveX = -5; if(keys['ArrowRight']) moveX = 5;
         }
 
-        function checkCollision(head, array) {
-            for (let i = 0; i < array.length; i++) {
-                if (head.x == array[i].x && head.y == array[i].y) return true;
-            }
-            return false;
+        if(moveX || moveY) {
+            if(!p.isAim) p.ang = Math.atan2(moveY, moveX);
+            // Devorga urilishni tekshirish
+            if(!collide(p.x + moveX, p.y)) p.x += moveX;
+            if(!collide(p.x, p.y + moveY)) p.y += moveY;
         }
 
-        function draw() {
-            if (isGameOver) return;
+        p.x = Math.max(R, Math.min(canvas.width-R, p.x));
+        p.y = Math.max(R, Math.min(canvas.height-R, p.y));
+        if(p.ammo < 3) p.ammo += 0.015;
 
-            ctx.fillStyle = "black";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Ilonni chizish
-            for (let i = 0; i < snake.length; i++) {
-                ctx.fillStyle = (i == 0) ? "#00ff00" : "#005500";
-                ctx.fillRect(snake[i].x, snake[i].y, box, box);
-                ctx.strokeStyle = "black";
-                ctx.strokeRect(snake[i].x, snake[i].y, box, box);
-            }
-
-            // Ovqatni chizish
-            ctx.fillStyle = "red";
-            ctx.fillRect(food.x, food.y, box, box);
-
-            let headX = snake[0].x;
-            let headY = snake[0].y;
-
-            if (dir == "LEFT") headX -= box;
-            if (dir == "UP") headY -= box;
-            if (dir == "RIGHT") headX += box;
-            if (dir == "DOWN") headY += box;
-
-            // Ovqatni yeyish
-            if (headX == food.x && headY == food.y) {
-                score++;
-                scoreDisplay.innerText = score;
-                food = {
-                    x: Math.floor(Math.random() * 19 + 1) * box,
-                    y: Math.floor(Math.random() * 19 + 1) * box
-                };
-            } else {
-                snake.pop();
-            }
-
-            let newHead = { x: headX, y: headY };
-
-            // Yutqazish holati
-            if (headX < 0 || headX >= canvas.width || headY < 0 || headY >= canvas.height || checkCollision(newHead, snake)) {
-                isGameOver = true;
-                clearInterval(game);
-                body.classList.add("shake");
-                finalScoreDisplay.innerText = score;
-                menu.style.display = "block";
-            }
-
-            snake.unshift(newHead);
+        if(p.hp <= 0) {
+            gameOver = true;
+            document.getElementById('win').style.display = 'flex';
+            document.getElementById('winTxt').innerText = (p.id === 1 ? "KO'K" : "QIZIL") + " G'ALABA QILDI!";
         }
+    });
 
-        let game = setInterval(draw, 150);
-    </script>
+    bullets.forEach((b, i) => {
+        b.x += b.vx; b.y += b.vy;
+        let enemy = b.owner === p1 ? p2 : p1;
+        if(Math.hypot(b.x-enemy.x, b.y-enemy.y) < R) {
+            enemy.hp -= 400; b.owner.super = Math.min(100, b.owner.super + 15);
+            bullets.splice(i, 1);
+        }
+        walls.forEach((w, wi) => {
+            if(b.x > w.x && b.x < w.x+w.w && b.y > w.y && b.y < w.y+w.h) {
+                if(b.isG || b.isS) walls.splice(wi, 1);
+                bullets.splice(i, 1);
+            }
+        });
+    });
+
+    draw();
+    requestAnimationFrame(update);
+}
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#475569'; walls.forEach(w => ctx.fillRect(w.x, w.y, w.w, w.h));
+    [p1, p2].forEach(p => {
+        ctx.fillStyle = p.c; ctx.beginPath(); ctx.arc(p.x, p.y, R, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = p.super >= 100 ? 'gold' : 'black'; ctx.lineWidth = 3; ctx.stroke();
+        ctx.fillStyle = 'black'; ctx.fillRect(p.x-25, p.y-45, 50, 6);
+        ctx.fillStyle = '#22c55e'; ctx.fillRect(p.x-25, p.y-45, (Math.max(0, p.hp)/3200)*50, 6);
+        ctx.fillStyle = '#facc15'; ctx.fillRect(p.x-25, p.y-37, (p.super/100)*50, 4);
+    });
+    ctx.fillStyle = 'white'; bullets.forEach(b => { ctx.beginPath(); ctx.arc(b.x, b.y, 5, 0, Math.PI*2); ctx.fill(); });
+}
+update();
+</script>
 </body>
 </html>
