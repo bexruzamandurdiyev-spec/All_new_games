@@ -2,273 +2,166 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <title>Shukur Xolmirzayev - Interactive Crossword</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ilk Uyg'onish Davri Metodi</title>
     <style>
-        :root {
-            --neon-blue: #00d2ff;
-            --neon-pink: #ff00ff;
-            --neon-green: #39ff14;
-            --bg: #0a0a0a;
-        }
-
-        body {
-            background-color: var(--bg);
-            color: #fff;
-            font-family: 'Segoe UI', sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            margin: 0;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        h1 {
-            color: var(--neon-blue);
-            text-shadow: 0 0 10px var(--neon-blue);
-            margin: 10px 0;
-            text-transform: uppercase;
-        }
-
-        .level-indicator {
-            background: var(--neon-pink);
-            padding: 5px 20px;
-            border-radius: 50px;
-            font-weight: bold;
-            box-shadow: 0 0 15px var(--neon-pink);
-        }
-
-        .main-game {
-            display: flex;
-            gap: 40px;
-            flex-wrap: wrap;
-            justify-content: center;
-            max-width: 1200px;
-        }
-
-        /* Krossvord Setkasi */
-        .grid-container {
-            position: relative;
-            background: rgba(255, 255, 255, 0.03);
-            padding: 20px;
-            border: 2px solid var(--neon-blue);
-            box-shadow: 0 0 25px rgba(0, 210, 255, 0.2);
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(12, 45px);
-            grid-template-rows: repeat(12, 45px);
-            gap: 5px;
-        }
-
-        .cell-wrapper {
-            position: relative;
-            width: 45px;
-            height: 45px;
-        }
-
-        .cell-num {
-            position: absolute;
-            top: 2px;
-            left: 4px;
-            font-size: 10px;
-            color: var(--neon-blue);
-            z-index: 2;
-            pointer-events: none;
-        }
-
-        .cell {
-            width: 100%;
-            height: 100%;
-            background: #111;
-            border: 1px solid #333;
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-            color: #fff;
-            text-transform: uppercase;
-            outline: none;
-            transition: 0.2s;
-        }
-
-        .active { border-color: var(--neon-pink); }
-        .active:focus { background: #222; box-shadow: inset 0 0 10px var(--neon-pink); }
-        .hidden { visibility: hidden; }
-
-        .correct { color: var(--neon-green) !important; border-color: var(--neon-green) !important; }
-        .wrong { color: #ff3131 !important; border-color: #ff3131 !important; }
-
-        /* Sidebar Savollar */
-        .sidebar {
-            width: 380px;
-            background: #151515;
-            padding: 25px;
-            border-radius: 15px;
-            border-right: 5px solid var(--neon-blue);
-        }
-
-        .sidebar h2 { color: var(--neon-blue); border-bottom: 1px solid #333; padding-bottom: 10px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #2c3e50; color: white; text-align: center; margin: 0; padding: 20px; }
+        .screen { display: none; }
+        .active { display: block; }
+        h1 { color: #f1c40f; font-size: 3rem; }
+        .btn-start { padding: 15px 40px; font-size: 1.5rem; cursor: pointer; background: #27ae60; color: white; border: none; border-radius: 10px; transition: 0.3s; }
+        .btn-start:hover { background: #2ecc71; }
         
-        .question-item {
-            margin-bottom: 15px;
-            font-size: 15px;
-            line-height: 1.5;
-            color: #ddd;
-        }
-        .question-item b { color: var(--neon-pink); margin-right: 8px; }
+        .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; max-width: 800px; margin: 20px auto; }
+        .q-btn { padding: 25px; font-size: 1.5rem; background: #34495e; color: #ecf0f1; border: 2px solid #f1c40f; cursor: pointer; border-radius: 8px; }
+        .q-btn.used { background: #7f8c8d; cursor: not-allowed; border-color: #95a5a6; }
 
-        .btn-group {
-            margin-top: 20px;
-            display: flex;
-            gap: 15px;
-        }
+        .teams { display: flex; justify-content: center; gap: 30px; margin-top: 30px; }
+        .team-box { background: #34495e; padding: 15px; border-radius: 10px; border-top: 5px solid #f1c40f; min-width: 150px; }
+        .score { font-size: 2rem; font-weight: bold; display: block; }
 
-        button {
-            padding: 12px 25px;
-            background: transparent;
-            border: 2px solid var(--neon-blue);
-            color: var(--neon-blue);
-            font-weight: bold;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: 0.3s;
-        }
-
-        button:hover { background: var(--neon-blue); color: #000; box-shadow: 0 0 20px var(--neon-blue); }
+        #modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; flex-direction: column; padding: 20px; box-sizing: border-box; }
+        .question-box { background: white; color: #333; padding: 30px; border-radius: 15px; max-width: 600px; width: 90%; }
+        .options { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+        .opt-btn { padding: 10px; font-size: 1.1rem; cursor: pointer; border: 1px solid #ccc; border-radius: 5px; text-align: left; }
+        .opt-btn:hover { background: #f0f0f0; }
         
-        #next-btn { border-color: var(--neon-green); color: var(--neon-green); display: none; }
+        .team-selector { margin-top: 20px; }
+        .team-selector button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        .lucky { font-size: 3rem; color: #f1c40f; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <div class="level-indicator" id="lvl-tag">BOSQICH 1</div>
-        <h1 id="lvl-title">LUG'AT BOYLIGI (RASMDAGI SO'ZLAR)</h1>
+    <div id="start-screen" class="screen active">
+        <h1>Ilk Uygʻonish Davri Madaniyati</h1>
+        <button class="btn-start" onclick="startGame()">Metodni boshlash</button>
     </div>
 
-    <div class="main-game">
-        <div class="grid-container">
-            <div class="grid" id="main-grid"></div>
-        </div>
-
-        <div class="sidebar">
-            <h2>SAVOLLAR</h2>
-            <div id="q-list"></div>
-            <div class="btn-group">
-                <button onclick="checkAnswers()">TEKSHIRISH</button>
-                <button id="next-btn" onclick="startLevel2()">KEYINGI BOSQICH (IJOD)</button>
-            </div>
+    <div id="game-screen" class="screen">
+        <h2 id="status-text">Metod boshlandi!</h2>
+        <div class="grid" id="question-grid"></div>
+        
+        <div class="teams">
+            <div class="team-box">1-Jamoa <span class="score" id="s0">0</span></div>
+            <div class="team-box">2-Jamoa <span class="score" id="s1">0</span></div>
+            <div class="team-box">3-Jamoa <span class="score" id="s2">0</span></div>
         </div>
     </div>
 
-    <script>
-        const levels = {
-            1: {
-                tag: "BOSQICH 1",
-                title: "LUG'AT BOYLIGI (RASMDAGI SO'ZLAR)",
-                words: [
-                    { r: 1, c: 1, word: "CHILLAK", q: "O'zbek xalq milliy o'yini" },
-                    { r: 3, c: 1, word: "GUVALA", q: "Loydan yasalgan qurilish materiali" },
-                    { r: 5, c: 1, word: "TUYNAK", q: "Hali yetilmagan yangi qovun" },
-                    { r: 7, c: 1, word: "YAZNA", q: "Opaning eri, pochcha" },
-                    { r: 9, c: 1, word: "QORA", q: "Qo'ylar saqlanadigan joy" },
-                    { r: 11, c: 1, word: "POXOL", q: "Bug'doy yoki sholi poyasi" }
-                ]
-            },
-            2: {
-                tag: "BOSQICH 2",
-                title: "SHUKUR XOLMIRZAYEV HAYOTI VA IJODI",
-                words: [
-                    { r: 1, c: 1, word: "SURXONDARYO", q: "Adib tug'ilgan viloyat" },
-                    { r: 3, c: 1, word: "BOYSUN", q: "Adib tug'ilgan tuman" },
-                    { r: 5, c: 1, word: "OQOTIL", q: "Ilk hikoyalar to'plami nomi" },
-                    { r: 7, c: 1, word: "TOLQINLAR", q: "60-yillardagi mashhur qissasi" },
-                    { r: 9, c: 1, word: "TOSHKENT", q: "Adib vafot etgan shahar" }
-                ]
-            }
-        };
+    <div id="modal">
+        <div class="question-box" id="q-content"></div>
+        <div class="team-selector" id="t-selector" style="display:none;">
+            <p style="color:white">Qaysi jamoa javob beradi?</p>
+            <button onclick="applyLucky(0)">1-Jamoa</button>
+            <button onclick="applyLucky(1)">2-Jamoa</button>
+            <button onclick="applyLucky(2)">3-Jamoa</button>
+        </div>
+    </div>
 
-        let currentLvl = 1;
+<script>
+    let scores = [0, 0, 0];
+    let currentPoints = 0;
+    let currentCorrectIndex = -1;
+    let currentBtnId = null;
 
-        function renderLevel(lvl) {
-            const grid = document.getElementById('main-grid');
-            const qList = document.getElementById('q-list');
-            grid.innerHTML = '';
-            qList.innerHTML = '';
-            document.getElementById('lvl-tag').innerText = levels[lvl].tag;
-            document.getElementById('lvl-title').innerText = levels[lvl].title;
-            document.getElementById('next-btn').style.display = 'none';
+    const questions = [
+        { q: "Renessans so'zi qanday ma'noni anglatadi?", a: ["Gullash", "Uyg'onish", "Inqiroz", "Yangi asr"], c: 1, p: 50 },
+        { q: "Ilk Uyg'onish davri qaysi yillarni qamrab oladi?", a: ["1350-1400", "1420-1500", "1500-1527", "1530-1620"], c: 1, p: 100 },
+        { q: "Gumanitar fanlarga qaysi fan kirmaydi?", a: ["Ritorika", "She'riyat", "Fizika", "Tarix"], c: 2, p: 150 },
+        { q: "Dante Aligyerining eng mashhur asari qaysi?", a: ["Ilohiy komediya", "Dekameron", "Kandid", "Hamshira"], c: 0, p: 100 },
+        { q: "Florensiya sobori gumbazi me'mori kim?", a: ["Donatello", "Filippo Brunelleski", "Mazachcho", "Jotto"], c: 1, p: 150 },
+        { q: "Renessans davri qaysi davlatda boshlangan?", a: ["Gretsiya", "Fransiya", "Italiya", "Germaniya"], c: 2, p: 50 },
+        { q: "Yangi g'oyalarning Shimoliy Yevropaga tarqalishida kimlar rol o'ynagan?", a: ["Savdogarlar", "Rassomlar", "Talabalar va gumanistlar", "Harbiylar"], c: 2, p: 100 },
+        { q: "Shimoliy Uyg'onish davrining yirik vakili kim?", a: ["Yan van Eyk", "Dante", "Mazachcho", "Brunelleski"], c: 0, p: 150 },
+        { q: "Ilk bor yog'li bo'yoqlardan foydalangan rassom?", a: ["Mikelyanjelo", "Yan van Eyk", "Leonardo", "Rafael"], c: 1, p: 150 },
+        { q: "Uyg'onish davri musiqasida qaysi cholg'u asbobi ommalashgan?", a: ["Gitarra", "Lyutnya", "Saksafon", "Piano"], c: 1, p: 100 },
+        { q: "Gumanizm so'zi qaysi tildan olingan?", a: ["Grets", "Lotin", "Arab", "Ingliz"], c: 1, p: 50 },
+        { q: "Renessans madaniyati asosan qaysi qatlam orasida rivojlandi?", a: ["Dehqonlar", "Shahar aholisi (burjuaziya)", "Harbiylar", "Ruhoniylar"], c: 1, p: 100 },
+        { type: "lucky", p: 100 },
+        { type: "lucky", p: 50 },
+        { type: "lucky", p: 150 }
+    ];
 
-            // Gridni yaratish (12x12)
-            const cells = {};
-            for (let r = 1; r <= 12; r++) {
-                for (let c = 1; c <= 12; c++) {
-                    const wrap = document.createElement('div');
-                    wrap.className = 'cell-wrapper';
-                    const input = document.createElement('input');
-                    input.className = 'cell hidden';
-                    input.id = `cell-${r}-${c}`;
-                    input.maxLength = 1;
-                    wrap.appendChild(input);
-                    grid.appendChild(wrap);
-                    cells[`${r}-${c}`] = input;
-                }
-            }
+    // Savollarni aralashtirish
+    questions.sort(() => Math.random() - 0.5);
 
-            // Savollar va raqamlarni joylash
-            levels[lvl].words.forEach((item, index) => {
-                const num = index + 1;
-                // Savol matni
-                const qDiv = document.createElement('div');
-                qDiv.className = 'question-item';
-                qDiv.innerHTML = `<b>${num}.</b> ${item.q} (${item.word.length} harf)`;
-                qList.appendChild(qDiv);
-
-                // Kataklarni aktivlashtirish va raqam qo'yish
-                for (let i = 0; i < item.word.length; i++) {
-                    const targetCell = cells[`${item.r}-${item.c + i}`];
-                    targetCell.className = 'cell active';
-                    targetCell.dataset.ans = item.word[i];
-                    
-                    if (i === 0) { // Birinchi harfga raqam qo'yish
-                        const span = document.createElement('span');
-                        span.className = 'cell-num';
-                        span.innerText = num;
-                        targetCell.parentElement.appendChild(span);
-                    }
-                }
-            });
+    function startGame() {
+        document.getElementById('start-screen').classList.remove('active');
+        document.getElementById('game-screen').classList.add('active');
+        const grid = document.getElementById('question-grid');
+        
+        for(let i=0; i<15; i++) {
+            const btn = document.createElement('button');
+            btn.className = 'q-btn';
+            btn.innerText = i + 1;
+            btn.id = 'btn-' + i;
+            btn.onclick = () => openQuestion(i);
+            grid.appendChild(btn);
         }
+    }
 
-        function checkAnswers() {
-            let win = true;
-            document.querySelectorAll('.active').forEach(cell => {
-                if (cell.value.toUpperCase() === cell.dataset.ans) {
-                    cell.classList.add('correct');
-                    cell.classList.remove('wrong');
-                } else {
-                    cell.classList.add('wrong');
-                    win = false;
-                }
-            });
-
-            if (win) {
-                if (currentLvl < 2) document.getElementById('next-btn').style.display = 'block';
-                else alert("TABRIKLAYMIZ! Barcha krossvordlarni yechdingiz.");
-            }
+    function openQuestion(index) {
+        const btn = document.getElementById('btn-' + index);
+        if(btn.classList.contains('used')) return;
+        
+        currentBtnId = index;
+        const q = questions[index];
+        const modal = document.getElementById('modal');
+        const content = document.getElementById('q-content');
+        const tSelector = document.getElementById('t-selector');
+        
+        modal.style.display = 'flex';
+        
+        if(q.type === "lucky") {
+            content.innerHTML = `<div class="lucky">🎁 OMADLI BALL! <br> +${q.p} ball</div>`;
+            tSelector.style.display = 'block';
+            currentPoints = q.p;
+        } else {
+            tSelector.style.display = 'none';
+            currentPoints = q.p;
+            currentCorrectIndex = q.c;
+            let optionsHtml = q.a.map((opt, i) => `<button class="opt-btn" onclick="checkAnswer(${i})">${i+1}. ${opt}</button>`).join('');
+            content.innerHTML = `<h3>[${q.p} ball]</h3><p style="font-size:1.3rem">${q.q}</p><div class="options">${optionsHtml}</div>`;
         }
+        btn.classList.add('used');
+    }
 
-        function startLevel2() {
-            currentLvl = 2;
-            renderLevel(2);
+    function checkAnswer(idx) {
+        const content = document.getElementById('q-content');
+        content.innerHTML += `<div class="team-selector" style="margin-top:20px"><p>Qaysi jamoa javob berdi?</p>
+            <button onclick="finishQuestion(0, ${idx === currentCorrectIndex})">1-Jamoa</button>
+            <button onclick="finishQuestion(1, ${idx === currentCorrectIndex})">2-Jamoa</button>
+            <button onclick="finishQuestion(2, ${idx === currentCorrectIndex})">3-Jamoa</button>
+        </div>`;
+    }
+
+    function applyLucky(teamIdx) {
+        scores[teamIdx] += currentPoints;
+        updateScores();
+        closeModal();
+    }
+
+    function finishQuestion(teamIdx, isCorrect) {
+        if(isCorrect) {
+            scores[teamIdx] += currentPoints;
+            alert("To'g'ri javob!");
+        } else {
+            scores[teamIdx] -= currentPoints;
+            alert("Noto'g'ri javob! Ball ayrildi.");
         }
+        updateScores();
+        closeModal();
+    }
 
-        renderLevel(1);
-    </script>
+    function updateScores() {
+        scores.forEach((s, i) => document.getElementById('s' + i).innerText = s);
+    }
+
+    function closeModal() {
+        document.getElementById('modal').style.display = 'none';
+        document.getElementById('t-selector').style.display = 'none';
+    }
+</script>
 </body>
 </html>
