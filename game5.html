@@ -1,170 +1,171 @@
+
 <!DOCTYPE html>
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Brawl Mini: Final Fixed</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarixiy Ensiklopediya: 20 Fakt</title>
     <style>
-        body { margin: 0; background: #0f172a; overflow: hidden; touch-action: none; font-family: sans-serif; }
-        canvas { display: block; background: #1e293b; }
-        .joystick { position: absolute; width: 80px; height: 80px; background: rgba(255,255,255,0.1); border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); z-index: 10; }
-        .handle { position: absolute; width: 34px; height: 34px; background: rgba(255,255,255,0.5); border-radius: 50%; top: 23px; left: 23px; pointer-events: none; }
-        .btn { position: absolute; width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; border: 2px solid #000; z-index: 10; cursor: pointer; box-shadow: 0 4px #000; font-size: 10px; }
-       
-        #move1 { bottom: 20px; left: 20px; } #aim1 { bottom: 20px; left: 110px; }
-        #g1 { bottom: 100px; left: 20px; background: #f59e0b; } #u1 { bottom: 100px; left: 110px; background: #eab308; }
-       
-        #move2 { bottom: 20px; right: 110px; } #aim2 { bottom: 20px; right: 20px; }
-        #g2 { bottom: 100px; right: 110px; background: #f59e0b; } #u2 { bottom: 100px; right: 20px; background: #eab308; }
+        :root {
+            --paper: #fdf5e6;
+            --gold: #d4af37;
+            --dark: #1a1a1a;
+            --accent: #c0392b;
+        }
 
-        #win { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; flex-direction: column; align-items: center; justify-content: center; color: white; z-index: 100; }
+        body {
+            background-color: var(--dark);
+            font-family: 'Georgia', serif;
+            margin: 0;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 { color: var(--gold); text-align: center; margin-bottom: 5px; text-transform: uppercase; }
+        .sub { color: #bdc3c7; font-style: italic; margin-bottom: 40px; }
+
+        /* Kartalar to'plami */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            width: 100%;
+            max-width: 1300px;
+        }
+
+        .card {
+            background: var(--paper);
+            border: 2px solid var(--gold);
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
+            min-height: 180px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        .card:hover { transform: scale(1.05); background: white; }
+
+        .card-num { color: var(--accent); font-weight: bold; opacity: 0.5; }
+        .card-cat { font-size: 11px; text-transform: uppercase; color: var(--accent); letter-spacing: 1px; }
+        .card-title { font-size: 20px; font-weight: bold; margin: 10px 0; color: #000; }
+        .card-preview { font-size: 14px; color: #444; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+        /* MODAL OYNA (Kattalashgan holat) */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(8px);
+        }
+
+        .modal-content {
+            background: var(--paper);
+            width: 80%;
+            max-width: 700px;
+            padding: 50px;
+            border-radius: 20px;
+            position: relative;
+            box-shadow: 0 0 50px var(--gold);
+            animation: zoomIn 0.3s ease;
+        }
+
+        @keyframes zoomIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        .close-btn {
+            position: absolute;
+            top: 20px; right: 25px;
+            font-size: 35px;
+            color: var(--accent);
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .modal-title { font-size: 35px; color: var(--accent); margin-bottom: 20px; border-bottom: 2px solid var(--gold); padding-bottom: 10px; }
+        .modal-text { font-size: 22px; line-height: 1.6; color: #222; text-align: justify; }
+        .modal-cat { color: var(--gold); font-weight: bold; text-transform: uppercase; margin-bottom: 10px; display: block; }
     </style>
 </head>
 <body>
 
-<div id="win"><h1 id="winTxt"></h1><button onclick="location.reload()" style="padding:10px 20px; cursor:pointer;">Yana o'ynash</button></div>
-<canvas id="game"></canvas>
+    <h1>XIII - XV Asrlar Madaniyat Xazinasi</h1>
+    <p class="sub">Kattalashtirish va batafsil o'qish uchun istalgan kartani bosing</p>
 
-<div class="joystick" id="move1"><div class="handle"></div></div>
-<div class="joystick" id="aim1"><div class="handle"></div></div>
-<div class="btn" id="g1">GADGET</div><div class="btn" id="u1">SUPER</div>
+    <div class="grid" id="mainGrid"></div>
 
-<div class="joystick" id="move2"><div class="handle"></div></div>
-<div class="joystick" id="aim2"><div class="handle"></div></div>
-<div class="btn" id="g2">GADGET</div><div class="btn" id="u2">SUPER</div>
+    <div class="modal" id="myModal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <span class="modal-cat" id="mCat"></span>
+            <div class="modal-title" id="mTitle"></div>
+            <div class="modal-text" id="mText"></div>
+            <button onclick="closeModal()" style="margin-top: 30px; padding: 10px 20px; background: var(--accent); color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">Ortga qaytish</button>
+        </div>
+    </div>
 
-<script>
-const canvas = document.getElementById('game');
-const ctx = canvas.getContext('2d');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+    <script>
+        const facts = [
+            { cat: "Movarounnahr", title: "Registon ansambli", text: "Samarqandning markaziy maydoni bo'lib, XIII-XV asrlarda u yerda dastlab Mirzo Ulug'bek madrasasi qad ko'targan. Bu maskan nafaqat diniy, balki dunyoviy fanlar o'qitiladigan o'sha davrning eng nufuzli universiteti vazifasini o'tagan." },
+            { cat: "Astronomiya", title: "Ziji Jadidi Ko'ragoniy", text: "Mirzo Ulug'bek tomonidan yaratilgan bu asar 1018 ta yulduzning jadvalini o'z ichiga olgan. Ushbu ilmiy kashfiyot o'rta asrlarda osmon jismlari harakatini o'rganishdagi eng yuqori nuqta bo'lib, butun dunyo astronomlari uchun qo'llanma bo'lgan." },
+            { cat: "Adabiyot", title: "Alisher Navoiy: 'Xamsa'", text: "Turkiy tilda yaratilgan birinchi 'Xamsa' bo'lib, beshta dostonni o'z ichiga oladi. Navoiy ushbu asari orqali o'zbek tilining boyligini va go'zalligini butun dunyoga namoyish etgan va adabiyot cho'qqisiga chiqqan." },
+            { cat: "Hindiston", title: "Qutub Minor minorasi", text: "Dehli sultonligi davridagi eng yirik me'moriy obida. U o'sha vaqtdagi eng baland g'ishtli minora bo'lib, islom va hind me'morchilik uslublarining ajoyib sintezini o'zida aks ettiradi." },
+            { cat: "Afrika", title: "Mansa Musaning boyligi", text: "Mali imperatori Mansa Musa tarixda eng boy inson sifatida tanilgan. Uning Makkaga haj safari davomida tarqatgan oltinlari Misr va Yaqin Sharqdagi oltin bozorlariga 12 yil davomida ta'sir ko'rsatgan." },
+            { cat: "Ilm-fan", title: "Timbuktu ilmiy markazi", text: "G'arbiy Afrikadagi Timbuktu shahri XV asrda yirik ilm markazi edi. U yerdagi Sankore madrasasida 25 mingdan ortiq talaba huquq, astronomiya va tibbiyot kabi fanlarni o'rgangan." },
+            { cat: "Amerika", title: "Mayya matematikasi", text: "Mayya xalqi matematika sohasida 'Nol' (0) tushunchasini kashf qilgan dunyodagi birinchi xalqlardan biridir. Bu ularga murakkab astronomik hisoblar va aniq taqvim yaratish imkonini bergan." },
+            { cat: "Amerika", title: "Tenochtitlan mo'jizasi", text: "Asteklar imperiyasining poytaxti ko'l o'rtasida sun'iy orollarda qurilgan. Shahar o'zining kanallari, suzuvchi bog'lari va ulkan piramidalari bilan o'sha davrda yevropalik sayyohlarni hayratda qoldirgan." },
+            { cat: "Amerika", title: "Inklar yo'l tizimi", text: "Inka imperiyasi tog'li hududlarda 40 000 kilometrdan ortiq tosh yotqizilgan yo'llarni barpo etgan. Bu yo'llar davlatning turli burchaklarini bog'lab, savdo va harbiy xavfsizlik uchun xizmat qilgan." },
+            { cat: "Aloqa", title: "Tugunli yozuv: Kip", text: "Inklar murakkab ma'lumotlarni saqlash uchun 'Kip' (Quipu) deb ataluvchi rangli tugunli iplardan foydalanganlar. Bu iplar orqali davlat hisob-kitoblari va tarixiy voqealar muhrlangan." },
+            { cat: "San'at", title: "Kamoliddin Behzod", text: "Sharq miniatyura san'atining buyuk ustasi. U o'z asarlarida inson qiyofasini va tabiatni juda nozik va aniq tasvirlagan, Hirot miniatyura maktabini jahonga tanitgan." },
+            { cat: "Savdo", title: "Global Ipak Yo'li", text: "XIII-XV asrlarda Ipak yo'li o'zining eng faol davrini o'tagan. Bu yo'l orqali nafaqat ipak va ziravorlar, balki madaniyatlar, dinlar va texnologik ixtirolar qit'alararo almashilgan." },
+            { cat: "Afrika", title: "Buyuk Zimbabve devori", text: "Janubiy Afrikadagi toshdan qurilgan mahobatli shahar. U loy yoki qorishtirmasiz faqat toshlarni mahorat bilan terish orqali qurilgan bo'lib, Afrika me'morchiligining cho'qqisidir." },
+            { cat: "Matematika", title: "G'iyosiddin Jamshid al-Koshiy", text: "Samarqand observatoriyasining yetakchi olimlaridan biri. U o'nli kasrlarni mukammal darajaga keltirgan va matematik hisob-kitoblarda yangi uslublarni kashf etgan." },
+            { cat: "Me'morchilik", title: "Bibixonim masjidi", text: "Amir Temur davrida Samarqandda qurilgan eng ulkan masjid. Uning mahobati va dekoratsiyasi o'sha davrdagi islom olamining muhandislik yutuqlarini ifodalaydi." },
+            { cat: "Amerika", title: "Chichen Itsa piramidasi", text: "Mayya sivilizatsiyasining ushbu piramidasi aslida ulkan tosh kalendar hisoblanadi. U yulduzlar va quyosh holatiga qarab yil fasllarini aniq ko'rsatib turgan." },
+            { cat: "Afrika", title: "Yetti shahar — Havsa", text: "G'arbiy Afrikada Havsa xalqi barpo etgan yetti shahar-davlat o'zining rivojlangan hunarmandchiligi, savdosi va mudofaa tizimi bilan mashhur bo'lgan." },
+            { cat: "Tarix", title: "Sharafiddin Ali Yazdiy", text: "Uning 'Zafarnoma' asari Amir Temurning hayoti va faoliyatini yorituvchi eng ishonchli va badiiy mukammal tarixiy manba hisoblanadi." },
+            { cat: "Xitoy", title: "Buyuk dengiz sayohatlari", text: "XV asr boshida Admiral Chjen Xe boshchiligidagi Xitoy floti Osiyo va Afrika qirg'oqlariga ulkan sayohatlar uyushtirib, madaniy va iqtisodiy aloqalarni o'rnatgan." },
+            { cat: "Madaniyat", title: "Xulosa: Dunyo sivilizatsiyasi", text: "XIII-XV asrlar insoniyat uchun aql-zakovat, san'at va savdo-sotiqning uyg'unlashgan davridir. Bu davr merosi hozirgi zamon ilm-fani va madaniyati uchun poydevor bo'lib xizmat qiladi." }
+        ];
 
-const R = 22;
-let gameOver = false;
-let keys = {};
+        const grid = document.getElementById('mainGrid');
+        const modal = document.getElementById('myModal');
 
-window.addEventListener('keydown', e => keys[e.code] = true);
-window.addEventListener('keyup', e => keys[e.code] = false);
-
-function createP(id, x, c) {
-    return { id, x, y: canvas.height/2, c, hp: 3200, ammo: 3, vx: 0, vy: 0, ang: 0, super: 0, gadget: 3, isAim: false };
-}
-
-let p1 = createP(1, 100, '#dc2626');
-let p2 = createP(2, canvas.width - 100, '#2563eb');
-let bullets = [];
-let walls = [
-    {x: canvas.width/2 - 25, y: 150, w: 50, h: 200},
-    {x: canvas.width/2 - 25, y: canvas.height - 350, w: 50, h: 200}
-];
-
-function setupJoy(id, p, type) {
-    const el = document.getElementById(id);
-    const h = el.querySelector('.handle');
-    el.addEventListener('touchmove', e => {
-        e.preventDefault();
-        const t = e.touches[0];
-        const rect = el.getBoundingClientRect();
-        let dx = t.clientX - (rect.left + 40);
-        let dy = t.clientY - (rect.top + 40);
-        const d = Math.sqrt(dx*dx + dy*dy);
-        if(d > 35) { dx *= 35/d; dy *= 35/d; }
-        h.style.transform = `translate(${dx}px, ${dy}px)`;
-        if(type === 'aim') { p.isAim = true; p.ang = Math.atan2(dy, dx); }
-        else { p.vx = (dx/35)*5; p.vy = (dy/35)*5; }
-    });
-    el.addEventListener('touchend', () => {
-        h.style.transform = 'translate(0,0)';
-        if(type === 'aim') { if(p.isAim) shoot(p); p.isAim = false; }
-        else { p.vx = 0; p.vy = 0; }
-    });
-}
-
-setupJoy('move1', p1, 'move'); setupJoy('aim1', p1, 'aim');
-setupJoy('move2', p2, 'move'); setupJoy('aim2', p2, 'aim');
-
-function shoot(p, isG = false, isS = false) {
-    if(p.ammo < 1 && !isS) return;
-    bullets.push({ x: p.x, y: p.y, vx: Math.cos(p.ang)*(isS?15:12), vy: Math.sin(p.ang)*(isS?15:12), owner: p, isG, isS });
-    if(!isS) p.ammo--;
-}
-
-document.getElementById('g1').onclick = () => { if(p1.gadget > 0) { p1.gadget--; shoot(p1, true); } };
-document.getElementById('u1').onclick = () => { if(p1.super >= 100) { p1.super = 0; for(let i=0; i<8; i++) setTimeout(()=>shoot(p1,true,true), i*100); } };
-document.getElementById('g2').onclick = () => { if(p2.gadget > 0) { p2.gadget--; shoot(p2, true); } };
-document.getElementById('u2').onclick = () => { if(p2.super >= 100) { p2.super = 0; for(let i=0; i<8; i++) setTimeout(()=>shoot(p2,true,true), i*100); } };
-
-function collide(nx, ny) {
-    for(let w of walls) {
-        if(nx+R > w.x && nx-R < w.x+w.w && ny+R > w.y && ny-R < w.y+w.h) return true;
-    }
-    return false;
-}
-
-function update() {
-    if(gameOver) return;
-
-    [p1, p2].forEach(p => {
-        // Harakatni boshqarish
-        let moveX = p.vx, moveY = p.vy;
-        if(p.id === 1 && !p.vx && !p.vy) {
-            if(keys['KeyW']) moveY = -5; if(keys['KeyS']) moveY = 5;
-            if(keys['KeyA']) moveX = -5; if(keys['KeyD']) moveX = 5;
-        } else if(p.id === 2 && !p.vx && !p.vy) {
-            if(keys['ArrowUp']) moveY = -5; if(keys['ArrowDown']) moveY = 5;
-            if(keys['ArrowLeft']) moveX = -5; if(keys['ArrowRight']) moveX = 5;
-        }
-
-        if(moveX || moveY) {
-            if(!p.isAim) p.ang = Math.atan2(moveY, moveX);
-            // Devorga urilishni tekshirish
-            if(!collide(p.x + moveX, p.y)) p.x += moveX;
-            if(!collide(p.x, p.y + moveY)) p.y += moveY;
-        }
-
-        p.x = Math.max(R, Math.min(canvas.width-R, p.x));
-        p.y = Math.max(R, Math.min(canvas.height-R, p.y));
-        if(p.ammo < 3) p.ammo += 0.015;
-
-        if(p.hp <= 0) {
-            gameOver = true;
-            document.getElementById('win').style.display = 'flex';
-            document.getElementById('winTxt').innerText = (p.id === 1 ? "KO'K" : "QIZIL") + " G'ALABA QILDI!";
-        }
-    });
-
-    bullets.forEach((b, i) => {
-        b.x += b.vx; b.y += b.vy;
-        let enemy = b.owner === p1 ? p2 : p1;
-        if(Math.hypot(b.x-enemy.x, b.y-enemy.y) < R) {
-            enemy.hp -= 400; b.owner.super = Math.min(100, b.owner.super + 15);
-            bullets.splice(i, 1);
-        }
-        walls.forEach((w, wi) => {
-            if(b.x > w.x && b.x < w.x+w.w && b.y > w.y && b.y < w.y+w.h) {
-                if(b.isG || b.isS) walls.splice(wi, 1);
-                bullets.splice(i, 1);
-            }
+        // Kartalarni yaratish
+        facts.forEach((f, i) => {
+            const div = document.createElement('div');
+            div.className = 'card';
+            div.onclick = () => openModal(f);
+            div.innerHTML = `
+                <div class="card-num">${i + 1}</div>
+                <div class="card-cat">${f.cat}</div>
+                <div class="card-title">${f.title}</div>
+                <div class="card-preview">${f.text}</div>
+            `;
+            grid.appendChild(div);
         });
-    });
 
-    draw();
-    requestAnimationFrame(update);
-}
+        function openModal(f) {
+            document.getElementById('mCat').innerText = f.cat;
+            document.getElementById('mTitle').innerText = f.title;
+            document.getElementById('mText').innerText = f.text;
+            modal.style.display = 'flex';
+        }
 
-function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#475569'; walls.forEach(w => ctx.fillRect(w.x, w.y, w.w, w.h));
-    [p1, p2].forEach(p => {
-        ctx.fillStyle = p.c; ctx.beginPath(); ctx.arc(p.x, p.y, R, 0, Math.PI*2); ctx.fill();
-        ctx.strokeStyle = p.super >= 100 ? 'gold' : 'black'; ctx.lineWidth = 3; ctx.stroke();
-        ctx.fillStyle = 'black'; ctx.fillRect(p.x-25, p.y-45, 50, 6);
-        ctx.fillStyle = '#22c55e'; ctx.fillRect(p.x-25, p.y-45, (Math.max(0, p.hp)/3200)*50, 6);
-        ctx.fillStyle = '#facc15'; ctx.fillRect(p.x-25, p.y-37, (p.super/100)*50, 4);
-    });
-    ctx.fillStyle = 'white'; bullets.forEach(b => { ctx.beginPath(); ctx.arc(b.x, b.y, 5, 0, Math.PI*2); ctx.fill(); });
-}
-update();
-</script>
+        function closeModal() {
+            modal.style.display = 'none';
+        }
+
+        // Modal tashqarisini bosganda ham yopilsin
+        window.onclick = function(event) {
+            if (event.target == modal) closeModal();
+        }
+    </script>
 </body>
 </html>
