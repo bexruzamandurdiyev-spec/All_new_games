@@ -3,127 +3,178 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Neon Flappy Bird</title>
+    <title>Neon Bird Fixed Control</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { 
-            background: #000; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            height: 100vh; 
-            color: white; 
-            font-family: sans-serif; 
-            overflow: hidden;
-            touch-action: none;
-        }
-        canvas { 
-            border: 3px solid #ff00ff; 
+        body { margin: 0; overflow: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; background: #0a0a0a; font-family: sans-serif; touch-action: none; }
+        canvas { border: 2px solid #00f2ff; box-shadow: 0 0 20px #00f2ff; background-color: #050505; max-width: 95%; height: auto; }
+        #ui { position: absolute; color: white; text-align: center; z-index: 100; pointer-events: none; }
+        .screen { background: rgba(0, 0, 0, 0.95); padding: 25px; border-radius: 15px; border: 2px solid #ff00ff; pointer-events: auto; }
+        .btn { background: #ff00ff; border: none; color: white; padding: 15px 30px; font-size: 20px; border-radius: 10px; cursor: pointer; box-shadow: 0 0 15px #ff00ff; font-weight: bold; }
+        #scoreBoard { position: absolute; top: 20px; color: #00f2ff; z-index: 50; font-size: 22px; text-shadow: 0 0 10px #00f2ff; }
+        
+        /* BOSHQARUV TUGMASI */
+        #jumpBtn {
+            margin-top: 20px;
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 0, 255, 0.2);
+            border: 4px solid #ff00ff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ff00ff;
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
             box-shadow: 0 0 20px #ff00ff;
-            background: #050505;
-            max-width: 100vw;
-            max-height: 70vh;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            pointer-events: auto;
+            z-index: 1000;
         }
-        .info { margin-top: 15px; font-size: 20px; font-weight: bold; color: #00ffff; }
-        .hint { font-size: 14px; color: #888; margin-top: 5px; }
+        #jumpBtn:active { transform: scale(0.9); background: rgba(255, 0, 255, 0.5); }
     </style>
 </head>
-<body onclick="jump()" onkeydown="if(event.code==='Space') jump()">
+<body>
 
-    <div class="info">BALL: <span id="score">0</span></div>
-    <canvas id="birdCanvas" width="320" height="480"></canvas>
-    <div class="hint">O'ynash uchun ekranga bosing!</div>
+    <div id="scoreBoard">Ball: 0 | Rekord: 0</div>
 
-    <script>
-        const canvas = document.getElementById("birdCanvas");
-        const ctx = canvas.getContext("2d");
-        const scoreEl = document.getElementById("score");
+    <div id="ui">
+        <div id="startScreen" class="screen">
+            <h1 style="color:#00f2ff; margin-top:0;">NEON BIRD</h1>
+            <button class="btn" id="startBtn">BOSHLASH</button>
+        </div>
+        <div id="gameOverScreen" class="screen" style="display: none;">
+            <h1 style="color:#ff0055; margin-top:0;">YUTQAZDINGIZ</h1>
+            <p id="res" style="font-size: 20px;"></p>
+            <button class="btn" id="restartBtn">QAYTA O'YNASH</button>
+        </div>
+    </div>
 
-        // O'yin sozlamalari
-        let bird = { x: 50, y: 150, w: 20, h: 20, gravity: 0.6, lift: -10, velocity: 0 };
-        let pipes = [];
-        let frame = 0;
-        let score = 0;
-        let gameActive = true;
+    <canvas id="gameCanvas"></canvas>
+    
+    <div id="jumpBtn">SAKRA</div>
 
-        function jump() {
-            if (!gameActive) { location.reload(); return; }
-            bird.velocity = bird.lift;
+<script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const jumpBtn = document.getElementById("jumpBtn");
+    const startBtn = document.getElementById("startBtn");
+    const restartBtn = document.getElementById("restartBtn");
+
+    canvas.width = 320;
+    canvas.height = 480;
+
+    let birdY, velocity, score, pipes, isPlaying = false;
+    let highScore = localStorage.getItem("neonHigh") || 0;
+    let frameCount = 0;
+
+    function init() {
+        birdY = 200;
+        velocity = 0;
+        score = 0;
+        pipes = [];
+        frameCount = 0;
+        updateScore();
+    }
+
+    function updateScore() {
+        document.getElementById("scoreBoard").innerHTML = `Ball: ${score} | Rekord: ${highScore}`;
+    }
+
+    function startGame() {
+        init();
+        isPlaying = true;
+        document.getElementById("startScreen").style.display = "none";
+        document.getElementById("gameOverScreen").style.display = "none";
+    }
+
+    function jumpAction() {
+        if (isPlaying) {
+            velocity = -5.5;
         }
+    }
 
-        function createPipe() {
-            let gap = 120;
-            let minHeight = 50;
-            let height = Math.floor(Math.random() * (canvas.height - gap - minHeight * 2)) + minHeight;
-            pipes.push({ x: canvas.width, top: height, bottom: canvas.height - height - gap });
+    // KOMPYUTER VA TELEFON UCHUN BIR XIL BOSHQARUV
+    jumpBtn.addEventListener("pointerdown", (e) => {
+        e.preventDefault();
+        jumpAction();
+    });
+
+    startBtn.addEventListener("click", startGame);
+    restartBtn.addEventListener("click", startGame);
+
+    // Klaviatura Probel uchun
+    window.addEventListener("keydown", (e) => {
+        if (e.code === "Space") {
+            if (isPlaying) jumpAction();
+            else startGame();
         }
+    });
 
-        function draw() {
-            if (!gameActive) return;
+    function draw() {
+        ctx.fillStyle = "#050505";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Fonni tozalash
-            ctx.fillStyle = "#050505";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        if (isPlaying) {
+            velocity += 0.25;
+            birdY += velocity;
 
-            // Qushchani chizish (Neon kvadrat)
-            bird.velocity += bird.gravity;
-            bird.y += bird.velocity;
-
-            ctx.fillStyle = "#00ffff";
-            ctx.shadowBlur = 10;
-            ctx.shadowColor = "#00ffff";
-            ctx.fillRect(bird.x, bird.y, bird.w, bird.h);
+            // Qush (Neon Aylana)
+            ctx.beginPath();
+            ctx.arc(60, birdY, 12, 0, Math.PI * 2);
+            ctx.fillStyle = "#fff";
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = "#00f2ff";
+            ctx.fill();
+            ctx.closePath();
             ctx.shadowBlur = 0;
 
-            // To'siqlarni chizish
-            if (frame % 90 === 0) createPipe();
+            if (frameCount % 90 === 0) {
+                pipes.push({ x: canvas.width, y: Math.random() * 200 + 50 });
+            }
 
             for (let i = pipes.length - 1; i >= 0; i--) {
-                pipes[i].x -= 2;
+                pipes[i].x -= 2.5;
+                ctx.fillStyle = "#39ff14";
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = "#39ff14";
+                ctx.fillRect(pipes[i].x, 0, 40, pipes[i].y);
+                ctx.fillRect(pipes[i].x, pipes[i].y + 150, 40, canvas.height);
+                ctx.shadowBlur = 0;
 
-                ctx.fillStyle = "#ff00ff";
-                // Yuqori to'siq
-                ctx.fillRect(pipes[i].x, 0, 40, pipes[i].top);
-                // Pastki to'siq
-                ctx.fillRect(pipes[i].x, canvas.height - pipes[i].bottom, 40, pipes[i].bottom);
-
-                // To'qnashuvni tekshirish
-                if (bird.x + bird.w > pipes[i].x && bird.x < pipes[i].x + 40) {
-                    if (bird.y < pipes[i].top || bird.y + bird.h > canvas.height - pipes[i].bottom) {
-                        gameOver();
+                // To'qnashuv
+                if (60 + 12 > pipes[i].x && 60 - 12 < pipes[i].x + 40) {
+                    if (birdY - 12 < pipes[i].y || birdY + 12 > pipes[i].y + 150) {
+                        endGame();
                     }
                 }
 
-                // Ball hisoblash
-                if (pipes[i].x === bird.x) {
+                if (pipes[i].x + 2.5 > 60 && pipes[i].x <= 60) {
                     score++;
-                    scoreEl.innerText = score;
+                    updateScore();
                 }
-
-                if (pipes[i].x + 40 < 0) pipes.splice(i, 1);
+                if (pipes[i].x < -40) pipes.splice(i, 1);
             }
 
-            // Yerga yoki osmonga urilish
-            if (bird.y + bird.h > canvas.height || bird.y < 0) gameOver();
-
-            frame++;
-            requestAnimationFrame(draw);
+            if (birdY > canvas.height || birdY < 0) endGame();
+            frameCount++;
         }
+        requestAnimationFrame(draw);
+    }
 
-        function gameOver() {
-            gameActive = false;
-            ctx.fillStyle = "rgba(0,0,0,0.7)";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = "white";
-            ctx.font = "30px Arial";
-            ctx.textAlign = "center";
-            ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2);
-            ctx.font = "16px Arial";
-            ctx.fillText("Qayta boshlash uchun bosing", canvas.width / 2, canvas.height / 2 + 40);
+    function endGame() {
+        isPlaying = false;
+        if (score > highScore) {
+            highScore = score;
+            localStorage.setItem("neonHigh", highScore);
         }
+        document.getElementById("res").innerText = "Ball: " + score;
+        document.getElementById("gameOverScreen").style.display = "block";
+    }
 
-        draw();
-    </script>
+    draw();
+</script>
 </body>
 </html>
