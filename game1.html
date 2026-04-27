@@ -24,61 +24,85 @@
         .calculator {
             background-color: #ffffff;
             padding: 20px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
             width: 320px;
+            user-select: none; /* Matn tanlanishini oldini oladi */
         }
         #display {
             width: 100%;
-            height: 65px;
+            height: 70px;
             background-color: var(--display-bg);
             color: #ffffff;
             text-align: right;
-            font-size: 26px;
+            font-size: 28px;
             border: none;
-            border-radius: 12px;
-            padding: 10px;
+            border-radius: 15px;
+            padding: 15px;
             margin-bottom: 20px;
             box-sizing: border-box;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
         }
         .buttons {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
+            gap: 12px;
         }
         button {
             padding: 15px;
-            font-size: 18px;
+            font-size: 20px;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             cursor: pointer;
-            background-color: #ecf0f1;
-            transition: 0.2s;
+            background-color: #f8f9fa;
+            color: #333;
+            transition: all 0.1s ease; /* Tezroq reaksiya uchun */
+            outline: none; /* Bosilgandan keyin ko'k chiziq chiqmasligi uchun */
+            box-shadow: 0 4px #ddd;
         }
-        button:hover { background-color: #d5dbdb; transform: scale(1.05); }
-        .op { background-color: #f39c12; color: white; }
-        .eq { background-color: var(--primary); color: white; grid-column: span 2; }
-        .clear { background-color: #e74c3c; color: white; }
+
+        /* Tugma bosilgandagi effekt */
+        button:active {
+            box-shadow: 0 0px #ddd;
+            transform: translateY(4px); /* Bosilganda pastga tushish effekti */
+            background-color: #e2e6ea;
+        }
+
+        /* Operatsiyalar (+, -, *, /) */
+        .op { background-color: #f39c12; color: white; box-shadow: 0 4px #d35400; }
+        .op:active { box-shadow: 0 0px #d35400; background-color: #e67e22; }
+
+        /* Tenglik tugmasi */
+        .eq { 
+            background-color: var(--primary); 
+            color: white; 
+            grid-column: span 2; 
+            box-shadow: 0 4px #2980b9; 
+        }
+        .eq:active { box-shadow: 0 0px #2980b9; }
+
+        /* Tozalash tugmalari */
+        .clear { background-color: #e74c3c; color: white; box-shadow: 0 4px #c0392b; }
+        .clear:active { box-shadow: 0 0px #c0392b; }
         
-        /* Ortga qaytish tugmasi stili */
         .home-btn {
-            margin-top: 20px;
+            margin-top: 25px;
             background-color: var(--btn-home);
             color: white;
             text-decoration: none;
-            padding: 12px 25px;
-            border-radius: 10px;
+            padding: 12px 30px;
+            border-radius: 50px;
             font-weight: bold;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);
             transition: 0.3s;
         }
-        .home-btn:hover { background-color: #27ae60; box-shadow: 0 6px 15px rgba(0,0,0,0.2); }
+        .home-btn:hover { background-color: #27ae60; transform: scale(1.1); }
     </style>
 </head>
 <body>
 
 <div class="calculator">
-    <input type="text" id="display" placeholder="0" disabled>
+    <input type="text" id="display" placeholder="0" readonly>
     <div class="buttons">
         <button class="clear" onclick="clearDisplay()">C</button>
         <button onclick="appendDisplay('**')">xʸ</button>
@@ -110,12 +134,13 @@
     </div>
 </div>
 
-<a href="index.html" class="home-btn">🏠 Asosiy sahifaga qaytish</a>
+<a href="index.html" class="home-btn">🏠 Ortga Qaytish</a>
 
 <script>
     let display = document.getElementById('display');
 
     function appendDisplay(value) {
+        if (display.value === '0' || display.value === 'Xato!') display.value = '';
         display.value += value;
     }
 
@@ -129,8 +154,10 @@
 
     function calculate() {
         try {
-            // eval o'rniga xavfsizroq amallarni bajarish mumkin, lekin o'quv loyihasi uchun bu yetarli
-            display.value = eval(display.value);
+            // Hisob-kitobni amalga oshirish
+            let result = eval(display.value);
+            // Agar natija juda uzun bo'lsa, qisqartirish
+            display.value = Number.isInteger(result) ? result : result.toFixed(4);
         } catch (e) {
             display.value = 'Xato!';
         }
@@ -139,6 +166,7 @@
     function calculateFactorial() {
         let num = parseInt(display.value);
         if (isNaN(num) || num < 0) return display.value = "Xato!";
+        if (num > 170) return display.value = "Cheksiz";
         let fact = 1;
         for (let i = 1; i <= num; i++) fact *= i;
         display.value = fact;
@@ -146,12 +174,19 @@
 
     function calculateRoot() {
         let base = parseFloat(display.value);
-        if (isNaN(base)) return alert("Avval sonni kiriting!");
-        let root = prompt("Ildiz darajasini kiriting (masalan, 2 yoki 3):");
+        if (isNaN(base)) return;
+        let root = prompt("Ildiz darajasini kiriting:", "2");
         if (root) {
-            display.value = Math.pow(base, 1/root);
+            display.value = Math.pow(base, 1/root).toFixed(4);
         }
     }
+
+    // Tugma bosilgandan keyin "fokus" (bosilgan holat) qolmasligi uchun
+    document.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('mouseup', function() {
+            this.blur();
+        });
+    });
 </script>
 
 </body>
