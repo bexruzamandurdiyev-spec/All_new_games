@@ -9,6 +9,7 @@
             --bg: #f4f7f6;
             --primary: #3498db;
             --display-bg: #2c3e50;
+            --btn-home: #2ecc71;
         }
         body {
             font-family: 'Segoe UI', sans-serif;
@@ -18,6 +19,7 @@
             align-items: center;
             height: 100vh;
             margin: 0;
+            flex-direction: column;
         }
         .calculator {
             background-color: #ffffff;
@@ -28,13 +30,13 @@
         }
         #display {
             width: 100%;
-            height: 60px;
+            height: 65px;
             background-color: var(--display-bg);
             color: #ffffff;
             text-align: right;
-            font-size: 24px;
+            font-size: 26px;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             padding: 10px;
             margin-bottom: 20px;
             box-sizing: border-box;
@@ -53,20 +55,35 @@
             background-color: #ecf0f1;
             transition: 0.2s;
         }
-        button:hover { background-color: #d5dbdb; }
+        button:hover { background-color: #d5dbdb; transform: scale(1.05); }
         .op { background-color: #f39c12; color: white; }
-        .op:hover { background-color: #e67e22; }
         .eq { background-color: var(--primary); color: white; grid-column: span 2; }
         .clear { background-color: #e74c3c; color: white; }
+        
+        /* Ortga qaytish tugmasi stili */
+        .home-btn {
+            margin-top: 20px;
+            background-color: var(--btn-home);
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: 0.3s;
+        }
+        .home-btn:hover { background-color: #27ae60; box-shadow: 0 6px 15px rgba(0,0,0,0.2); }
     </style>
 </head>
 <body>
 
 <div class="calculator">
-    <input type="text" id="display" disabled>
+    <input type="text" id="display" placeholder="0" disabled>
     <div class="buttons">
         <button class="clear" onclick="clearDisplay()">C</button>
-        <button onclick="appendDisplay('**')">xʸ</button> <button onclick="calculateRoot()">ⁿ√</button> <button class="op" onclick="appendDisplay('/')">÷</button>
+        <button onclick="appendDisplay('**')">xʸ</button>
+        <button onclick="calculateRoot()">ⁿ√</button>
+        <button class="op" onclick="appendDisplay('/')">÷</button>
 
         <button onclick="appendDisplay('7')">7</button>
         <button onclick="appendDisplay('8')">8</button>
@@ -93,6 +110,8 @@
     </div>
 </div>
 
+<a href="index.html" class="home-btn">🏠 Asosiy sahifaga qaytish</a>
+
 <script>
     let display = document.getElementById('display');
 
@@ -110,26 +129,25 @@
 
     function calculate() {
         try {
+            // eval o'rniga xavfsizroq amallarni bajarish mumkin, lekin o'quv loyihasi uchun bu yetarli
             display.value = eval(display.value);
         } catch (e) {
             display.value = 'Xato!';
         }
     }
 
-    // Faktorial hisoblash (!)
     function calculateFactorial() {
         let num = parseInt(display.value);
-        if (num < 0) return display.value = "Xato!";
+        if (isNaN(num) || num < 0) return display.value = "Xato!";
         let fact = 1;
         for (let i = 1; i <= num; i++) fact *= i;
         display.value = fact;
     }
 
-    // Ixtiyoriy darajali ildiz (n-ildiz)
-    // Ishlatish: Sonni yozing, tugmani bosing va ildiz darajasini yozing
     function calculateRoot() {
         let base = parseFloat(display.value);
-        let root = prompt("Ildiz darajasini kiriting (masalan kvadrat ildiz uchun 2):");
+        if (isNaN(base)) return alert("Avval sonni kiriting!");
+        let root = prompt("Ildiz darajasini kiriting (masalan, 2 yoki 3):");
         if (root) {
             display.value = Math.pow(base, 1/root);
         }
