@@ -2,179 +2,109 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Neon Bird Fixed Control</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ma'lumot Izlash - CFE</title>
     <style>
-        body { margin: 0; overflow: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; background: #0a0a0a; font-family: sans-serif; touch-action: none; }
-        canvas { border: 2px solid #00f2ff; box-shadow: 0 0 20px #00f2ff; background-color: #050505; max-width: 95%; height: auto; }
-        #ui { position: absolute; color: white; text-align: center; z-index: 100; pointer-events: none; }
-        .screen { background: rgba(0, 0, 0, 0.95); padding: 25px; border-radius: 15px; border: 2px solid #ff00ff; pointer-events: auto; }
-        .btn { background: #ff00ff; border: none; color: white; padding: 15px 30px; font-size: 20px; border-radius: 10px; cursor: pointer; box-shadow: 0 0 15px #ff00ff; font-weight: bold; }
-        #scoreBoard { position: absolute; top: 20px; color: #00f2ff; z-index: 50; font-size: 22px; text-shadow: 0 0 10px #00f2ff; }
-        
-        /* BOSHQARUV TUGMASI */
-        #jumpBtn {
-            margin-top: 20px;
-            width: 100px;
-            height: 100px;
-            background: rgba(255, 0, 255, 0.2);
-            border: 4px solid #ff00ff;
-            border-radius: 50%;
+        :root {
+            --bg: #f4f7f6;
+            --primary: #3498db;
+            --card: #ffffff;
+        }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+        .search-container {
+            background: var(--card);
+            padding: 40px;
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 90%;
+            max-width: 500px;
+        }
+        .search-logo {
+            font-size: 50px;
+            margin-bottom: 20px;
+        }
+        h2 {
+            margin-bottom: 25px;
+            color: #333;
+        }
+        .search-box {
+            display: flex;
+            gap: 10px;
+            background: #f1f1f1;
+            padding: 5px;
+            border-radius: 50px;
+            border: 2px solid transparent;
+            transition: 0.3s;
+        }
+        .search-box:focus-within {
+            border-color: var(--primary);
+            background: #fff;
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.2);
+        }
+        input {
+            flex: 1;
+            border: none;
+            background: none;
+            padding: 12px 20px;
+            font-size: 18px;
+            outline: none;
+        }
+        .search-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .search-btn:hover {
+            background: #2980b9;
+            transform: scale(1.05);
+        }
+        .home-btn {
+            margin-top: 30px;
+            text-decoration: none;
+            color: #7f8c8d;
+            font-weight: bold;
             display: flex;
             align-items: center;
-            justify-content: center;
-            color: #ff00ff;
-            font-weight: bold;
-            font-size: 18px;
-            cursor: pointer;
-            box-shadow: 0 0 20px #ff00ff;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-            pointer-events: auto;
-            z-index: 1000;
+            gap: 8px;
+            transition: 0.3s;
         }
-        #jumpBtn:active { transform: scale(0.9); background: rgba(255, 0, 255, 0.5); }
+        .home-btn:hover {
+            color: var(--primary);
+        }
     </style>
 </head>
 <body>
 
-    <div id="scoreBoard">Ball: 0 | Rekord: 0</div>
-
-    <div id="ui">
-        <div id="startScreen" class="screen">
-            <h1 style="color:#00f2ff; margin-top:0;">NEON BIRD</h1>
-            <button class="btn" id="startBtn">BOSHLASH</button>
-        </div>
-        <div id="gameOverScreen" class="screen" style="display: none;">
-            <h1 style="color:#ff0055; margin-top:0;">YUTQAZDINGIZ</h1>
-            <p id="res" style="font-size: 20px;"></p>
-            <button class="btn" id="restartBtn">QAYTA O'YNASH</button>
-        </div>
-    </div>
-
-    <canvas id="gameCanvas"></canvas>
+<div class="search-container">
+    <div class="search-logo">🔎</div>
+    <h2>Ma'lumot Izlash</h2>
     
-    <div id="jumpBtn">SAKRA</div>
+    <form action="https://www.google.com/search" method="GET" target="_blank" class="search-box">
+        <input type="text" name="q" placeholder="Nimani izlamoqchisiz?..." required>
+        <button type="submit" class="search-btn">Izlash</button>
+    </form>
 
-<script>
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
-    const jumpBtn = document.getElementById("jumpBtn");
-    const startBtn = document.getElementById("startBtn");
-    const restartBtn = document.getElementById("restartBtn");
+    <p style="font-size: 14px; color: #888; margin-top: 20px;">
+        Savolingizni yozing va biz sizga eng to'g'ri ma'lumotlarni topib beramiz.
+    </p>
+</div>
 
-    canvas.width = 320;
-    canvas.height = 480;
+<a href="index.html" class="home-btn">🏠 Asosiy sahifaga qaytish</a>
 
-    let birdY, velocity, score, pipes, isPlaying = false;
-    let highScore = localStorage.getItem("neonHigh") || 0;
-    let frameCount = 0;
-
-    function init() {
-        birdY = 200;
-        velocity = 0;
-        score = 0;
-        pipes = [];
-        frameCount = 0;
-        updateScore();
-    }
-
-    function updateScore() {
-        document.getElementById("scoreBoard").innerHTML = `Ball: ${score} | Rekord: ${highScore}`;
-    }
-
-    function startGame() {
-        init();
-        isPlaying = true;
-        document.getElementById("startScreen").style.display = "none";
-        document.getElementById("gameOverScreen").style.display = "none";
-    }
-
-    function jumpAction() {
-        if (isPlaying) {
-            velocity = -5.5;
-        }
-    }
-
-    // KOMPYUTER VA TELEFON UCHUN BIR XIL BOSHQARUV
-    jumpBtn.addEventListener("pointerdown", (e) => {
-        e.preventDefault();
-        jumpAction();
-    });
-
-    startBtn.addEventListener("click", startGame);
-    restartBtn.addEventListener("click", startGame);
-
-    // Klaviatura Probel uchun
-    window.addEventListener("keydown", (e) => {
-        if (e.code === "Space") {
-            if (isPlaying) jumpAction();
-            else startGame();
-        }
-    });
-
-    function draw() {
-        ctx.fillStyle = "#050505";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        if (isPlaying) {
-            velocity += 0.25;
-            birdY += velocity;
-
-            // Qush (Neon Aylana)
-            ctx.beginPath();
-            ctx.arc(60, birdY, 12, 0, Math.PI * 2);
-            ctx.fillStyle = "#fff";
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = "#00f2ff";
-            ctx.fill();
-            ctx.closePath();
-            ctx.shadowBlur = 0;
-
-            if (frameCount % 90 === 0) {
-                pipes.push({ x: canvas.width, y: Math.random() * 200 + 50 });
-            }
-
-            for (let i = pipes.length - 1; i >= 0; i--) {
-                pipes[i].x -= 2.5;
-                ctx.fillStyle = "#39ff14";
-                ctx.shadowBlur = 10;
-                ctx.shadowColor = "#39ff14";
-                ctx.fillRect(pipes[i].x, 0, 40, pipes[i].y);
-                ctx.fillRect(pipes[i].x, pipes[i].y + 150, 40, canvas.height);
-                ctx.shadowBlur = 0;
-
-                // To'qnashuv
-                if (60 + 12 > pipes[i].x && 60 - 12 < pipes[i].x + 40) {
-                    if (birdY - 12 < pipes[i].y || birdY + 12 > pipes[i].y + 150) {
-                        endGame();
-                    }
-                }
-
-                if (pipes[i].x + 2.5 > 60 && pipes[i].x <= 60) {
-                    score++;
-                    updateScore();
-                }
-                if (pipes[i].x < -40) pipes.splice(i, 1);
-            }
-
-            if (birdY > canvas.height || birdY < 0) endGame();
-            frameCount++;
-        }
-        requestAnimationFrame(draw);
-    }
-
-    function endGame() {
-        isPlaying = false;
-        if (score > highScore) {
-            highScore = score;
-            localStorage.setItem("neonHigh", highScore);
-        }
-        document.getElementById("res").innerText = "Ball: " + score;
-        document.getElementById("gameOverScreen").style.display = "block";
-    }
-
-    draw();
-</script>
 </body>
 </html>
