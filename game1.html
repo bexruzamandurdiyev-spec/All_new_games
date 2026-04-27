@@ -2,252 +2,139 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <title>Uyg'onish Davri - Neon Quiz</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scientific Calculator - CFE</title>
     <style>
         :root {
-            --neon-blue: #00f2ff;
-            --neon-pink: #ff00ff;
-            --neon-green: #00ff41;
+            --bg: #f4f7f6;
+            --primary: #3498db;
+            --display-bg: #2c3e50;
         }
         body {
-            margin: 0;
-            padding: 20px;
-            font-family: 'Orbitron', sans-serif;
-            background: #0d0d0d;
-            background-image: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%);
-            color: white;
-            overflow-x: hidden;
-            text-align: center;
-        }
-        h1 {
-            font-size: 3rem;
-            text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue);
-            color: var(--neon-blue);
-        }
-        .btn-start {
-            padding: 20px 60px;
-            font-size: 24px;
-            background: transparent;
-            color: var(--neon-green);
-            border: 3px solid var(--neon-green);
-            cursor: pointer;
-            border-radius: 50px;
-            box-shadow: 0 0 15px var(--neon-green);
-            transition: 0.3s;
-            margin-top: 100px;
-        }
-        .btn-start:hover {
-            background: var(--neon-green);
-            color: black;
-            box-shadow: 0 0 40px var(--neon-green);
-        }
-        #game-screen { display: none; }
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 15px;
-            max-width: 1000px;
-            margin: 30px auto;
-        }
-        .q-btn {
-            padding: 20px;
-            font-size: 20px;
-            background: rgba(255, 255, 255, 0.05);
-            color: white;
-            border: 2px solid var(--neon-blue);
-            cursor: pointer;
-            border-radius: 10px;
-            transition: 0.3s;
-        }
-        .q-btn:hover {
-            box-shadow: 0 0 20px var(--neon-blue);
-            transform: scale(1.05);
-        }
-        .used {
-            border-color: #444 !important;
-            color: #444 !important;
-            box-shadow: none !important;
-            cursor: not-allowed;
-        }
-        .teams {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg);
             display: flex;
             justify-content: center;
-            gap: 20px;
-            margin-top: 50px;
-        }
-        .team-box {
-            background: rgba(0, 0, 0, 0.6);
-            padding: 20px;
-            border: 2px solid var(--neon-pink);
-            border-radius: 15px;
-            width: 180px;
-            box-shadow: 0 0 10px var(--neon-pink);
-        }
-        .score { font-size: 32px; color: var(--neon-pink); display: block; }
-        
-        /* Modal & Animations */
-        #modal {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9);
-            display: none;
             align-items: center;
-            justify-content: center;
-            z-index: 1000;
+            height: 100vh;
+            margin: 0;
         }
-        .modal-content {
-            background: #1a1a1a;
-            padding: 40px;
-            border: 2px solid var(--neon-blue);
+        .calculator {
+            background-color: #ffffff;
+            padding: 20px;
             border-radius: 20px;
-            max-width: 700px;
-            width: 90%;
-            box-shadow: 0 0 30px var(--neon-blue);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            width: 320px;
         }
-        .opt-btn {
-            display: block; width: 100%; padding: 15px; margin: 10px 0;
-            background: transparent; color: white;
-            border: 1px solid var(--neon-blue);
-            cursor: pointer; border-radius: 8px; font-size: 18px;
+        #display {
+            width: 100%;
+            height: 60px;
+            background-color: var(--display-bg);
+            color: #ffffff;
+            text-align: right;
+            font-size: 24px;
+            border: none;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
         }
-        .opt-btn:hover { background: var(--neon-blue); color: black; }
-        
-        /* Feedback Effect */
-        #feedback {
-            position: fixed;
-            top: 50%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 100px; font-weight: bold;
-            z-index: 2000; pointer-events: none;
-            display: none;
-            text-shadow: 0 0 20px currentColor;
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
         }
+        button {
+            padding: 15px;
+            font-size: 18px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            background-color: #ecf0f1;
+            transition: 0.2s;
+        }
+        button:hover { background-color: #d5dbdb; }
+        .op { background-color: #f39c12; color: white; }
+        .op:hover { background-color: #e67e22; }
+        .eq { background-color: var(--primary); color: white; grid-column: span 2; }
+        .clear { background-color: #e74c3c; color: white; }
     </style>
 </head>
 <body>
 
-    <div id="feedback"></div>
+<div class="calculator">
+    <input type="text" id="display" disabled>
+    <div class="buttons">
+        <button class="clear" onclick="clearDisplay()">C</button>
+        <button onclick="appendDisplay('**')">xʸ</button> <button onclick="calculateRoot()">ⁿ√</button> <button class="op" onclick="appendDisplay('/')">÷</button>
 
-    <div id="start-screen">
-        <h1>ILK UYG'ONISH DAVRI</h1>
-        <button class="btn-start" onclick="startGame()">METODNI BOSHLASH</button>
-    </div>
+        <button onclick="appendDisplay('7')">7</button>
+        <button onclick="appendDisplay('8')">8</button>
+        <button onclick="appendDisplay('9')">9</button>
+        <button class="op" onclick="appendDisplay('*')">×</button>
 
-    <div id="game-screen">
-        <h2 style="color: var(--neon-green)">METOD BOSHLANDI</h2>
-        <div class="grid" id="grid"></div>
-        
-        <div class="teams">
-            <div class="team-box">1-JAMOA <span class="score" id="s0">0</span></div>
-            <div class="team-box">2-JAMOA <span class="score" id="s1">0</span></div>
-            <div class="team-box">3-JAMOA <span class="score" id="s2">0</span></div>
-        </div>
-    </div>
+        <button onclick="appendDisplay('4')">4</button>
+        <button onclick="appendDisplay('5')">5</button>
+        <button onclick="appendDisplay('6')">6</button>
+        <button class="op" onclick="appendDisplay('-')">-</button>
 
-    <div id="modal">
-        <div class="modal-content" id="modal-body"></div>
+        <button onclick="appendDisplay('1')">1</button>
+        <button onclick="appendDisplay('2')">2</button>
+        <button onclick="appendDisplay('3')">3</button>
+        <button class="op" onclick="appendDisplay('+')">+</button>
+
+        <button onclick="appendDisplay('0')">0</button>
+        <button onclick="appendDisplay('%')">%</button>
+        <button onclick="calculateFactorial()">!</button>
+        <button class="op" onclick="appendDisplay('.')">.</button>
+
+        <button class="eq" onclick="calculate()">=</button>
+        <button class="clear" onclick="backspace()" style="grid-column: span 2;">DEL</button>
     </div>
+</div>
 
 <script>
-    const teamScores = [0, 0, 0];
-    let currentQ = null;
+    let display = document.getElementById('display');
 
-    // 21 ta savol va bonuslar
-    const data = [
-        { q: "Renessans so'zi qaysi tildan olingan?", a: ["Lotin", "Fransuz", "Italyan", "Yunon"], c: 1, p: 50 },
-        { q: "Gumanizm g'oyasi markazida nima turadi?", a: ["Din", "Inson", "Davlat", "Tabiat"], c: 1, p: 100 },
-        { q: "Dante Aligyerining vatani qayer?", a: ["Rim", "Venetsiya", "Florensiya", "Milan"], c: 2, p: 50 },
-        { q: "Ilohiy komediya necha qismdan iborat?", a: ["2 ta", "3 ta", "4 ta", "5 ta"], c: 1, p: 150 },
-        { q: "Petrarka nima uchun 'Lotin shoiri' deb atalgan?", a: ["Lotin tilida yozgani uchun", "Rimda tug'ilgani uchun", "Huquqshunos bo'lgani uchun", "Fransiyada yashagani uchun"], c: 0, p: 100 },
-        { q: "Florensiya sobori gumbazi balandligi necha metr?", a: ["80 m", "91 m", "114 m", "150 m"], c: 1, p: 150 },
-        { q: "Mazachcho qaysi san'at turi bilan mashhur?", a: ["Haykaltaroshlik", "Musiqa", "Rassomchilik", "Me'morchilik"], c: 2, p: 100 },
-        { q: "Shimoliy Uyg'onish markazi qaysi hudud bo'lgan?", a: ["Ispaniya", "Niderlandiya", "Angliya", "Rossiya"], c: 1, p: 150 },
-        { q: "Yan van Eyk qayerlik rassom?", a: ["Italiya", "Germaniya", "Flandriya", "Fransiya"], c: 2, p: 100 },
-        { q: "Renessans davrida eng ommabop cholg'u?", a: ["Arfa", "Lyutnya", "Gubka", "Nay"], c: 1, p: 50 },
-        { q: "Ilk Uyg'onish davri qaysi asrlarga to'g'ri keladi?", a: ["XIII-XIV", "XIV-XV", "XV-XVI", "XVI-XVII"], c: 1, p: 100 },
-        { q: "Gumanitar fanlar atamasi nima degani?", a: ["Insonparvarlik", "Davlatshunoslik", "Tabiatshunoslik", "Xudosharshunoslik"], c: 0, p: 50 },
-        { q: "Dante Aligyeri asarlarini qaysi tilda yozgan?", a: ["Lotin", "Italyan (xalq tili)", "Fransuz", "Ispan"], c: 1, p: 150 },
-        { q: "Renessans me'morchiligining otasi kim?", a: ["Donatello", "Brunelleski", "Mazachcho", "Jotto"], c: 1, p: 150 },
-        { q: "Lyutnya cholg'usi qaysi asbobga o'xshash?", a: ["Doira", "Gitara", "Pianino", "Skripka"], c: 1, p: 50 },
-        { q: "Uyg'onish davri madaniyati qayerda gullab yashnagan?", a: ["Yirik shaharlarda", "Qishloqlarda", "Monastirlarda", "Tog'larda"], c: 0, p: 100 },
-        { q: "Franchesko Petrarka qaysi soha vakili?", a: ["Rassom", "Shoir va olim", "Me'mor", "Musiqachi"], c: 1, p: 100 },
-        { q: "Gumanistlar o'tmishning qaysi davrini o'rganishgan?", a: ["O'rta asr", "Antik davr", "Temuriylar davri", "Yangi davr"], c: 1, p: 50 },
-        { type: "lucky", p: 150 },
-        { type: "lucky", p: 100 },
-        { type: "lucky", p: 50 }
-    ];
+    function appendDisplay(value) {
+        display.value += value;
+    }
 
-    data.sort(() => Math.random() - 0.5);
+    function clearDisplay() {
+        display.value = '';
+    }
 
-    function startGame() {
-        document.getElementById('start-screen').style.display = 'none';
-        document.getElementById('game-screen').style.display = 'block';
-        const grid = document.getElementById('grid');
-        for(let i=0; i<21; i++) {
-            let b = document.createElement('button');
-            b.className = 'q-btn';
-            b.innerText = i + 1;
-            b.onclick = () => openQ(i, b);
-            grid.appendChild(b);
+    function backspace() {
+        display.value = display.value.slice(0, -1);
+    }
+
+    function calculate() {
+        try {
+            display.value = eval(display.value);
+        } catch (e) {
+            display.value = 'Xato!';
         }
     }
 
-    function showFeedback(text, color) {
-        const f = document.getElementById('feedback');
-        f.innerText = text;
-        f.style.color = color;
-        f.style.display = 'block';
-        setTimeout(() => { f.style.display = 'none'; }, 1500);
+    // Faktorial hisoblash (!)
+    function calculateFactorial() {
+        let num = parseInt(display.value);
+        if (num < 0) return display.value = "Xato!";
+        let fact = 1;
+        for (let i = 1; i <= num; i++) fact *= i;
+        display.value = fact;
     }
 
-    function openQ(index, btn) {
-        if(btn.classList.contains('used')) return;
-        btn.classList.add('used');
-        currentQ = data[index];
-        const modal = document.getElementById('modal');
-        const body = document.getElementById('modal-body');
-        modal.style.display = 'flex';
-
-        if(currentQ.type === "lucky") {
-            body.innerHTML = `<h1 style="color:var(--neon-green)">🎁 OMADLI BALL!</h1>
-            <h2>+${currentQ.p} ball beriladi!</h2>
-            <p>Qaysi jamoaga?</p>
-            <button class="opt-btn" onclick="addLucky(0)">1-JAMOA</button>
-            <button class="opt-btn" onclick="addLucky(1)">2-JAMOA</button>
-            <button class="opt-btn" onclick="addLucky(2)">3-JAMOA</button>`;
-        } else {
-            let opts = currentQ.a.map((o, i) => `<button class="opt-btn" onclick="check(${i})">${o}</button>`).join('');
-            body.innerHTML = `<h3>${currentQ.p} BALLIK SAVOL</h3><p style="font-size:22px">${currentQ.q}</p>${opts}`;
+    // Ixtiyoriy darajali ildiz (n-ildiz)
+    // Ishlatish: Sonni yozing, tugmani bosing va ildiz darajasini yozing
+    function calculateRoot() {
+        let base = parseFloat(display.value);
+        let root = prompt("Ildiz darajasini kiriting (masalan kvadrat ildiz uchun 2):");
+        if (root) {
+            display.value = Math.pow(base, 1/root);
         }
-    }
-
-    function check(idx) {
-        const isCorrect = (idx === currentQ.c);
-        const body = document.getElementById('modal-body');
-        
-        if(isCorrect) showFeedback("TO'G'RI!", "#00ff41");
-        else showFeedback("NOTO'G'RI!", "#ff0000");
-
-        body.innerHTML = `<h2>JAVOBNI KIM BERDI?</h2>
-        <button class="opt-btn" style="border-color:var(--neon-green)" onclick="final(0, ${isCorrect})">1-JAMOA</button>
-        <button class="opt-btn" style="border-color:var(--neon-green)" onclick="final(1, ${isCorrect})">2-JAMOA</button>
-        <button class="opt-btn" style="border-color:var(--neon-green)" onclick="final(2, ${isCorrect})">3-JAMOA</button>`;
-    }
-
-    function addLucky(tIdx) {
-        teamScores[tIdx] += currentQ.p;
-        update();
-    }
-
-    function final(tIdx, correct) {
-        if(correct) teamScores[tIdx] += currentQ.p;
-        else teamScores[tIdx] -= currentQ.p;
-        update();
-    }
-
-    function update() {
-        teamScores.forEach((s, i) => document.getElementById('s' + i).innerText = s);
-        document.getElementById('modal').style.display = 'none';
     }
 </script>
+
 </body>
 </html>
