@@ -27,7 +27,7 @@
             border-radius: 25px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.15);
             width: 320px;
-            user-select: none; /* Matn tanlanishini oldini oladi */
+            user-select: none;
         }
         #display {
             width: 100%;
@@ -56,32 +56,23 @@
             cursor: pointer;
             background-color: #f8f9fa;
             color: #333;
-            transition: all 0.1s ease; /* Tezroq reaksiya uchun */
-            outline: none; /* Bosilgandan keyin ko'k chiziq chiqmasligi uchun */
+            transition: all 0.1s ease;
+            outline: none;
             box-shadow: 0 4px #ddd;
         }
 
-        /* Tugma bosilgandagi effekt */
         button:active {
             box-shadow: 0 0px #ddd;
-            transform: translateY(4px); /* Bosilganda pastga tushish effekti */
+            transform: translateY(4px);
             background-color: #e2e6ea;
         }
 
-        /* Operatsiyalar (+, -, *, /) */
         .op { background-color: #f39c12; color: white; box-shadow: 0 4px #d35400; }
         .op:active { box-shadow: 0 0px #d35400; background-color: #e67e22; }
 
-        /* Tenglik tugmasi */
-        .eq { 
-            background-color: var(--primary); 
-            color: white; 
-            grid-column: span 2; 
-            box-shadow: 0 4px #2980b9; 
-        }
+        .eq { background-color: var(--primary); color: white; grid-column: span 2; box-shadow: 0 4px #2980b9; }
         .eq:active { box-shadow: 0 0px #2980b9; }
 
-        /* Tozalash tugmalari */
         .clear { background-color: #e74c3c; color: white; box-shadow: 0 4px #c0392b; }
         .clear:active { box-shadow: 0 0px #c0392b; }
         
@@ -99,14 +90,14 @@
         .home-btn:hover { background-color: #27ae60; transform: scale(1.1); }
     </style>
 </head>
-<body>
+<body id="main-body">
 
 <div class="calculator">
     <input type="text" id="display" placeholder="0" readonly>
     <div class="buttons">
         <button class="clear" onclick="clearDisplay()">C</button>
         <button onclick="appendDisplay('**')">xʸ</button>
-        <button onclick="calculateRoot()">ⁿ√</button>
+        <button onclick="sqrt()">√</button>
         <button class="op" onclick="appendDisplay('/')">÷</button>
 
         <button onclick="appendDisplay('7')">7</button>
@@ -154,10 +145,23 @@
 
     function calculate() {
         try {
-            // Hisob-kitobni amalga oshirish
             let result = eval(display.value);
-            // Agar natija juda uzun bo'lsa, qisqartirish
             display.value = Number.isInteger(result) ? result : result.toFixed(4);
+        } catch (e) {
+            display.value = 'Xato!';
+        }
+    }
+
+    // Kvadrat ildiz funksiyasi
+    function sqrt() {
+        try {
+            let val = eval(display.value);
+            if (val < 0) {
+                display.value = "Xato!";
+            } else {
+                let res = Math.sqrt(val);
+                display.value = Number.isInteger(res) ? res : res.toFixed(4);
+            }
         } catch (e) {
             display.value = 'Xato!';
         }
@@ -172,16 +176,6 @@
         display.value = fact;
     }
 
-    function calculateRoot() {
-        let base = parseFloat(display.value);
-        if (isNaN(base)) return;
-        let root = prompt("Ildiz darajasini kiriting:", "2");
-        if (root) {
-            display.value = Math.pow(base, 1/root).toFixed(4);
-        }
-    }
-
-    // Tugma bosilgandan keyin "fokus" (bosilgan holat) qolmasligi uchun
     document.querySelectorAll('button').forEach(btn => {
         btn.addEventListener('mouseup', function() {
             this.blur();
