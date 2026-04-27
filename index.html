@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CFE Portali - Hamma uchun ijodkorlik</title>
+    <title>CFE Portali - Mukammal Versiya</title>
     <style>
         :root {
             --bg-color: #f0f2f5;
@@ -11,9 +11,10 @@
             --card-bg: #ffffff;
             --primary-color: #3498db;
             --header-bg: #ffffff;
-            --accent-color: #e67e22;
+            --accent-glow: none;
         }
 
+        /* REJIMLAR */
         body.dark-mode {
             --bg-color: #121212;
             --text-color: #f4f4f4;
@@ -22,12 +23,21 @@
             --header-bg: #1e1e1e;
         }
 
+        body.neon-mode {
+            --bg-color: #0d0221;
+            --text-color: #00ffcc;
+            --card-bg: #1a084d;
+            --primary-color: #ff00ff;
+            --header-bg: #0d0221;
+            --accent-glow: 0 0 15px #ff00ff, 0 0 5px #00ffcc;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
-            transition: 0.3s;
+            transition: all 0.4s ease;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
@@ -36,21 +46,20 @@
         /* HEADER */
         header {
             background-color: var(--header-bg);
-            padding: 10px 20px;
+            padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
+            border-bottom: 2px solid var(--primary-color);
+            text-shadow: var(--accent-glow);
         }
 
         .logo-box { display: flex; align-items: center; gap: 10px; }
-        .logo-img { width: 50px; height: auto; border-radius: 5px; }
-        .header-title { font-size: 22px; font-weight: bold; color: var(--primary-color); }
+        .logo-img { width: 50px; height: auto; border-radius: 8px; box-shadow: var(--accent-glow); }
+        .header-title { font-size: 24px; font-weight: bold; color: var(--primary-color); }
 
-        /* MAIN CONTENT */
+        /* CONTAINER */
         .container {
             flex: 1;
             max-width: 1000px;
@@ -59,10 +68,9 @@
             text-align: center;
         }
 
-        .welcome-title { font-size: 32px; margin-bottom: 10px; }
-        .welcome-subtitle { font-size: 18px; opacity: 0.8; margin-bottom: 40px; }
+        .welcome-title { font-size: 2.2em; margin-bottom: 10px; text-shadow: var(--accent-glow); }
 
-        /* FEATURES GRID */
+        /* GRID */
         .features-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -78,145 +86,152 @@
             transition: 0.3s;
             cursor: pointer;
             text-align: left;
-            border-left: 5px solid var(--primary-color);
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
-        .feature-card:hover { transform: scale(1.02); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
-        .feature-icon { font-size: 35px; margin-bottom: 10px; }
+        .feature-card:hover { 
+            transform: translateY(-5px); 
+            box-shadow: var(--accent-glow); 
+            border-color: var(--primary-color);
+        }
 
-        /* BOTTOM GAME BUTTON */
+        /* GAMES BUTTON */
         .games-footer {
             width: 100%;
-            background: linear-gradient(45deg, var(--primary-color), #2980b9);
+            background: var(--primary-color);
             padding: 40px 0;
-            margin-top: 30px;
+            box-shadow: var(--accent-glow);
         }
 
         .games-link {
             text-decoration: none;
             color: white;
-            font-size: 40px;
+            font-size: 2.5em;
             font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 3px;
             display: block;
             transition: 0.3s;
         }
 
-        .games-link:hover { transform: scale(1.1); text-shadow: 0 0 20px rgba(255,255,255,0.5); }
-
-        /* SETTINGS (From Sketch) */
-        .settings-container { position: fixed; bottom: 20px; right: 20px; z-index: 1001; }
+        /* SETTINGS PANEL */
+        .settings-container { position: fixed; bottom: 25px; right: 25px; z-index: 2000; }
+        
         #settings-btn {
-            background: var(--card-bg);
-            border: 2px solid var(--primary-color);
-            width: 55px; height: 55px; border-radius: 50%;
-            cursor: pointer; font-size: 25px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            width: 65px; height: 65px; border-radius: 50%;
+            cursor: pointer; font-size: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
 
         .settings-panel {
-            display: none; position: absolute; bottom: 70px; right: 0;
-            background: var(--card-bg); width: 200px; padding: 15px;
-            border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            display: none; position: absolute; bottom: 80px; right: 0;
+            background: var(--card-bg); width: 260px; padding: 20px;
+            border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            border: 2px solid var(--primary-color);
         }
 
-        .settings-panel h4 { margin: 0 0 15px 0; color: var(--primary-color); border-bottom: 1px solid #ddd; }
-        .setting-item { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; }
+        .settings-panel h3 { margin: 0 0 15px 0; font-size: 18px; border-bottom: 1px solid #555; padding-bottom: 10px; }
+        .setting-section { margin-bottom: 20px; }
+        .setting-section label { display: block; margin-bottom: 8px; font-weight: bold; font-size: 14px; }
+        
+        select {
+            width: 100%; padding: 10px; border-radius: 8px;
+            background: var(--bg-color); color: var(--text-color); border: 1px solid var(--primary-color);
+        }
     </style>
 </head>
-<body>
+<body id="main-body">
 
     <header>
         <div class="logo-box">
-            <img src="logo.png" alt="CFE Logo" class="logo-img">
+            <img src="logo.png" alt="CFE" class="logo-img">
             <span class="header-title">CFE</span>
         </div>
         <div><b>Create For Everybody</b></div>
-        <div style="font-size: 24px; cursor: pointer;">☰</div>
+        <div style="font-size: 24px;">☰</div>
     </header>
 
     <div class="container">
-        <h1 class="welcome-title">CFE Saytiga Xush Kelibsiz!</h1>
-        <p class="welcome-subtitle">Ijodkorlik va bilimlar olami sizni kutmoqda.</p>
+        <h1 class="welcome-title">CFE Portali</h1>
+        <p>Hamma uchun ijodkorlik va bilimlar maskani.</p>
 
         <div class="features-grid">
-            <div class="feature-card">
-                <div class="feature-icon">📐</div>
-                <h3>Matematika</h3>
-                <p>Masalalar yechish va formulalar to'plami.</p>
-            </div>
-
-            <div class="feature-card">
-                <div class="feature-icon">🔎</div>
-                <h3>Ma'lumot Izlash</h3>
-                <p>Gemini AI yordamida istalgan savolga javob toping.</p>
-            </div>
-
-            <div class="feature-card">
-                <div class="feature-icon">📝</div>
-                <h3>Testlar To'plami</h3>
-                <p>O'z bilimingizni turli fanlardan sinab ko'ring.</p>
-            </div>
-
-            <div class="feature-card">
-                <div class="feature-icon">📷</div>
-                <h3>Vision AI</h3>
-                <p>Rasmlarni tahlil qilish va savollar so'rash.</p>
-            </div>
-
-            <div class="feature-card">
-                <div class="feature-icon">💡</div>
-                <h3>Maslahatlar</h3>
-                <p>Kundalik hayot va o'qish uchun foydali tavsiyalar.</p>
-            </div>
+            <div class="feature-card"><h3>📐 Matematika</h3><p>Masalalar va misollar yechish.</p></div>
+            <div class="feature-card"><h3>🔎 Gemini AI</h3><p>Aqlli qidiruv tizimi.</p></div>
+            <div class="feature-card"><h3>📝 Testlar</h3><p>Bilimingizni tekshiring.</p></div>
+            <div class="feature-card"><h3>📷 Vision AI</h3><p>Rasmlarni tahlil qilish.</p></div>
+            <div class="feature-card"><h3>💡 Maslahatlar</h3><p>Foydali tavsiyalar.</p></div>
+            <div class="feature-card"><h3>🌐 Ingliz tili</h3><p>Til o'rganish laboratoriyasi.</p></div>
         </div>
     </div>
 
     <section class="games-footer">
-        <center>
-            <a href="games.html" class="games-link">O'YINLAR DUNYOSI</a>
-        </center>
+        <center><a href="games.html" class="games-link">O'YINLAR DUNYOSI</a></center>
     </section>
 
     <div class="settings-container">
-        <button id="settings-btn">⚙️</button>
+        <button id="settings-btn" title="Sozlamalar">⚙️</button>
         <div class="settings-panel" id="settings-panel">
-            <h4>Sozlamalar</h4>
-            <div class="setting-item">
-                <span>Tungi rejim</span>
-                <input type="checkbox" id="dark-toggle">
-            </div>
-            <div class="setting-item">
-                <span>Shrift hajmi</span>
-                <select id="font-size">
-                    <option value="16px">Oddiy</option>
-                    <option value="19px">Katta</option>
+            <h3>Portal Sozlamalari</h3>
+            
+            <div class="setting-section">
+                <label>Shrift o'lchami:</label>
+                <select id="font-size-select">
+                    <option value="12px">Juda kichik</option>
+                    <option value="14px">Kichik</option>
+                    <option value="16px" selected>O'rtacha (Oddiy)</option>
+                    <option value="18px">Kattaroq</option>
+                    <option value="20px">Katta</option>
+                    <option value="24px">Juda katta</option>
+                    <option value="28px">Maksimal</option>
                 </select>
             </div>
+
+            <div class="setting-section">
+                <label>Sayt rejimi:</label>
+                <select id="theme-select">
+                    <option value="light">Yorug' rejim</option>
+                    <option value="dark">Tungi rejim</option>
+                    <option value="neon">Neon Effect</option>
+                </select>
+            </div>
+            
+            <p style="font-size: 10px; opacity: 0.6; text-align: center;">CFE v2.0 - 2026</p>
         </div>
     </div>
 
     <script>
-        const btn = document.getElementById('settings-btn');
-        const panel = document.getElementById('settings-panel');
-        
-        btn.onclick = (e) => {
+        const sBtn = document.getElementById('settings-btn');
+        const sPanel = document.getElementById('settings-panel');
+        const body = document.getElementById('main-body');
+
+        // Menyuni ochish/yopish
+        sBtn.onclick = (e) => {
             e.stopPropagation();
-            panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+            sPanel.style.display = sPanel.style.display === 'block' ? 'none' : 'block';
         };
 
-        document.body.onclick = () => { panel.style.display = 'none'; };
-        panel.onclick = (e) => { e.stopPropagation(); };
+        document.body.onclick = () => { sPanel.style.display = 'none'; };
+        sPanel.onclick = (e) => { e.stopPropagation(); };
 
-        document.getElementById('dark-toggle').onchange = function() {
-            document.body.classList.toggle('dark-mode');
+        // Shrift o'lchamini o'zgartirish (7 xil)
+        document.getElementById('font-size-select').onchange = function() {
+            body.style.fontSize = this.value;
         };
 
-        document.getElementById('font-size').onchange = function() {
-            document.body.style.fontSize = this.value;
+        // Rejimlarni o'zgartirish (3 xil)
+        document.getElementById('theme-select').onchange = function() {
+            body.classList.remove('dark-mode', 'neon-mode');
+            
+            if (this.value === 'dark') {
+                body.classList.add('dark-mode');
+            } else if (this.value === 'neon') {
+                body.classList.add('neon-mode');
+            }
         };
 
-        window.onload = () => { alert("CFE saytiga xush kelibsiz!"); };
+        window.onload = () => { console.log("CFE Portal Ready!"); };
     </script>
 </body>
 </html>
