@@ -55,7 +55,7 @@
             padding-bottom: 20px;
         }
         .panel-card:hover { transform: translateY(-5px); }
-        .panel-img { width: 100%; height: 200px; object-fit: cover; }
+        .panel-img { width: 100%; height: 220px; object-fit: cover; }
         
         .panel-content { padding: 15px; }
         .btn {
@@ -68,9 +68,9 @@
             font-weight: bold;
             transition: 0.3s;
         }
-        .btn:hover { opacity: 0.8; letter-spacing: 1px; }
+        .btn:hover { opacity: 0.8; transform: scale(1.05); }
 
-        /* SETTINGS (Chizmadagi kabi) */
+        /* SETTINGS */
         .settings-fab { position: fixed; bottom: 20px; right: 20px; z-index: 1001; }
         #settings-btn {
             width: 60px; height: 60px; border-radius: 50%;
@@ -83,7 +83,6 @@
             border-radius: 15px; border: 2px solid var(--primary);
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
-        .settings-menu h4 { margin: 0 0 15px 0; border-bottom: 1px solid #ddd; }
         .settings-menu label { font-size: 14px; display: block; margin: 10px 0 5px; }
         .settings-menu select { width: 100%; padding: 8px; border-radius: 5px; }
 
@@ -101,40 +100,40 @@
 </header>
 
 <div class="container">
-    <h1 style="text-align: center;">Xush Kelibsiz!</h1>
+    <h1 style="text-align: center;">CFE Portaliga Xush Kelibsiz!</h1>
 
     <div class="panel-card">
-        <img src="math_bg.jpg" class="panel-img" alt="Matematika">
+        <img src="19620.jpg" class="panel-img" alt="Matematika">
         <div class="panel-content">
             <h2>📐 Matematika</h2>
-            <p>Kalkulyator: Murakkab amallar va misollarni yechish vositasi.</p>
-            <a href="math.html" class="btn">Kirish</a>
+            <p>Murakkab hisob-kitoblar va ilmiy amallarni bajarish uchun universal vosita.</p>
+            <a href="game7.html" class="btn">Kirish</a>
         </div>
     </div>
 
     <div class="panel-card">
-        <img src="search_bg.jpg" class="panel-img" alt="Qidiruv">
+        <img src="19621.webp" class="panel-img" alt="Qidiruv">
         <div class="panel-content">
             <h2>🔎 Ma'lumot Izlash</h2>
-            <p>Istalgan savolga AI yordamida tezkor javob toping.</p>
-            <a href="search.html" class="btn">Kirish</a>
+            <p>Istalgan savolga AI yordamida tezkor javob va ma'lumot toping.</p>
+            <a href="game8.html" class="btn">Kirish</a>
         </div>
     </div>
 
     <div class="panel-card">
-        <img src="test_bg.jpg" class="panel-img" alt="Testlar">
+        <img src="19623.jpg" class="panel-img" alt="Testlar">
         <div class="panel-content">
             <h2>📝 Testlar To'plami</h2>
-            <p>O'z bilimingizni turli fanlar bo'yicha sinab ko'ring.</p>
-            <a href="tests.html" class="btn">Kirish</a>
+            <p>Bilimingizni turli fanlar bo'yicha sinab ko'rish uchun testlar markazi.</p>
+            <a href="game9.html" class="btn">Kirish</a>
         </div>
     </div>
 
     <div class="panel-card">
-        <img src="games_bg.png" class="panel-img" alt="O'yinlar">
+        <img src="19624.png" class="panel-img" alt="O'yinlar">
         <div class="panel-content">
             <h2>🎮 O'yinlar Dunyosi</h2>
-            <p>X va O, Flappy Bird, Snake va boshqa qiziqarli mini o'yinlar.</p>
+            <p>X va O, Flappy Bird va boshqa qiziqarli mini o'yinlar to'plami.</p>
             <a href="games.html" class="btn">Kirish</a>
         </div>
     </div>
@@ -143,20 +142,18 @@
 <div class="settings-fab">
     <button id="settings-btn">⚙️</button>
     <div class="settings-menu" id="settings-menu">
-        <h4>⚙️ Sozlamalar</h4>
-        
-        <label>Rejimni tanlang:</label>
+        <h4 style="margin:0 0 10px 0;">Sozlamalar</h4>
+        <label>Rejim:</label>
         <select id="theme-mode">
-            <option value="light">Yorug' rejim</option>
-            <option value="dark">Tungi rejim</option>
-            <option value="neon">Neon Effect</option>
+            <option value="light">Yorug'</option>
+            <option value="dark">Tungi</option>
+            <option value="neon">Neon</option>
         </select>
 
-        <label>Shrift o'lchami:</label>
+        <label>Shrift:</label>
         <select id="font-size">
             <option value="16px">Normal</option>
             <option value="20px">Katta</option>
-            <option value="24px">Juda katta</option>
         </select>
     </div>
 </div>
@@ -166,7 +163,6 @@
     const sMenu = document.getElementById('settings-menu');
     const body = document.getElementById('main-body');
 
-    // Menyu ochish/yopish
     sBtn.onclick = (e) => {
         e.stopPropagation();
         sMenu.style.display = sMenu.style.display === 'block' ? 'none' : 'block';
@@ -174,16 +170,16 @@
     document.onclick = () => sMenu.style.display = 'none';
     sMenu.onclick = (e) => e.stopPropagation();
 
-    // Rejimni o'zgartirish
     document.getElementById('theme-mode').onchange = function() {
         body.classList.remove('dark-mode', 'neon-mode');
         if(this.value !== 'light') body.classList.add(this.value + '-mode');
     };
 
-    // Shriftni o'zgartirish
     document.getElementById('font-size').onchange = function() {
         body.style.fontSize = this.value;
     };
+
+    // Alert xabari (window.onload) butunlay olib tashlandi.
 </script>
 
 </body>
