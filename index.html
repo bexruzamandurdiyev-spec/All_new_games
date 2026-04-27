@@ -37,11 +37,11 @@
         .logo-img { width: 60px; height: 60px; border-radius: 10px; box-shadow: var(--neon-shadow); }
         .cfe-title { font-size: 24px; font-weight: bold; color: var(--primary); }
 
-        /* HAR BIR BO'LIM ALOHIDA CONTAINERDA */
+        /* CONTAINERS */
         .container {
             max-width: 900px;
             margin: 20px auto;
-            padding: 20px;
+            padding: 25px;
             background: var(--card);
             border-radius: 15px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
@@ -49,55 +49,58 @@
         }
 
         .btn { 
-            display: inline-block; background: var(--primary); color: white; padding: 10px 20px; 
+            display: inline-block; background: var(--primary); color: white; padding: 10px 25px; 
             text-decoration: none; border-radius: 5px; margin-top: 10px; transition: 0.3s;
+            font-weight: bold;
         }
-        .btn:hover { opacity: 0.8; transform: scale(1.05); }
+        .btn:hover { opacity: 0.8; transform: scale(1.05); box-shadow: var(--neon-shadow); }
 
-        /* O'YINLAR BO'LIMI */
+        /* GAMES SECTION */
         .games-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 15px;
             margin-top: 20px;
         }
         .game-card {
             background: var(--bg);
-            padding: 15px;
-            border-radius: 10px;
+            padding: 20px;
+            border-radius: 12px;
             text-align: center;
             border: 1px solid var(--primary);
         }
         .main-game-box {
             margin-top: 30px;
-            padding: 30px;
+            padding: 40px;
             border: 3px dashed var(--primary);
             text-align: center;
             border-radius: 20px;
+            background: rgba(52, 152, 219, 0.05);
         }
 
-        /* SOZLAMALAR PANEL */
-        .settings-fab { position: fixed; bottom: 20px; right: 20px; z-index: 1000; }
+        /* SETTINGS PANEL */
+        .settings-fab { position: fixed; bottom: 25px; right: 25px; z-index: 1000; }
         #settings-btn {
-            width: 60px; height: 60px; border-radius: 50%;
+            width: 65px; height: 65px; border-radius: 50%;
             background: var(--primary); color: white; border: none;
-            font-size: 30px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            font-size: 32px; cursor: pointer; box-shadow: 0 5px 20px rgba(0,0,0,0.4);
         }
         .settings-menu {
-            display: none; position: absolute; bottom: 70px; right: 0;
-            background: var(--card); width: 220px; padding: 20px;
-            border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: none; position: absolute; bottom: 80px; right: 0;
+            background: var(--card); width: 240px; padding: 20px;
+            border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
             border: 2px solid var(--primary);
         }
+        .settings-menu label { font-size: 14px; font-weight: bold; display: block; margin-bottom: 5px; }
         .settings-menu select {
-            width: 100%; padding: 8px; margin-top: 10px; margin-bottom: 15px;
-            border-radius: 5px; background: var(--bg); color: var(--text);
+            width: 100%; padding: 10px; margin-bottom: 20px;
+            border-radius: 8px; background: var(--bg); color: var(--text); border: 1px solid #ccc;
         }
 
-        h2 { border-bottom: 2px solid var(--primary); padding-bottom: 10px; display: inline-block; }
+        h2 { border-bottom: 2px solid var(--primary); padding-bottom: 10px; display: inline-block; margin-bottom: 15px; }
     </style>
 </head>
-<body>
+<body id="main-body">
 
 <header>
     <img src="logo.png" alt="CFE Logo" class="logo-img">
@@ -105,21 +108,21 @@
 </header>
 
 <div class="container" id="math-section">
-    <h2>📐 Matematika</h2>
-    <p>Matematika boʻlimida sizga kerak barcha misollarni kalkulator orqali hisoblashingiz mumkin.</p>
-    <a href="game7.html" class="btn">KIRISH</a>
+    <h2>📐 Matematika: Kalkulyator</h2>
+    <p>Murakkab hisob-kitoblar va ilmiy amallarni bajarish uchun qisqa va qulay vosita.</p>
+    <a href="game7.html" class="btn">Kirish</a>
 </div>
 
 <div class="container" id="search-section">
     <h2>🔎 Ma'lumot izlash</h2>
-    <p>Malumotlarni izlash boʻlimida siz hoxlagan malumotingizni topa olasiz.</p>
-    <a href="game8.html" class="btn">KIRISH</a>
+    <p>Istalgan savolingizga javobni va kerakli ma'lumotlarni shu yerdan toping.</p>
+    <a href="game8.html" class="btn">Kirish</a>
 </div>
 
 <div class="container" id="quiz-section">
     <h2>📝 Testlar to'plami</h2>
-    <p>Testlar toʻplami boʻlimida siz oʻzingizni yoshingizga mos testlar ishlay olasiz.</p>
-    <a href="game9.html" class="btn">KIRISH</a>
+    <p>Bilimingizni turli fanlar bo'yicha sinab ko'rish uchun testlar markazi.</p>
+    <a href="game9.html" class="btn">Kirish</a>
 </div>
 
 <div class="container" id="games-section">
@@ -139,32 +142,32 @@
             <a href="game5.html" class="btn">Boshlash</a>
         </div>
         <div class="game-card">
-            <h3>Tetris</h3>
-            <a href="game10.html" class="btn">Boshlash</a>
+            <h3>Brawl Mini</h3>
+            <a href="game3.html" class="btn">Boshlash</a>
         </div>
         <div class="game-card">
-            <h3>Car Race</h3>
-            <a href="game11.html" class="btn">Boshlash</a>
+            <h3>Adabiyot</h3>
+            <a href="game1.html" class="btn">Boshlash</a>
         </div>
         <div class="game-card">
-            <h3>Number Guess</h3>
+            <h3>Sonni top</h3>
             <a href="game4.html" class="btn">Boshlash</a>
         </div>
     </div>
 
     <div class="main-game-box">
         <h3>⭐ ASOSIY O'YIN: 2048</h3>
-        <p>Eng yuqori ball to'plang!</p>
-        <a href="game3.html" class="btn">Boshlash</a>
+        <p>Strategiya ishlating va eng yuqori ballni qo'lga kiriting!</p>
+        <a href="game3.html" class="btn" style="padding: 15px 40px; font-size: 1.2em;">Boshlash</a>
     </div>
 </div>
 
 <div class="settings-fab">
     <button id="settings-btn">⚙️</button>
     <div class="settings-menu" id="settings-menu">
-        <h4 style="margin-top:0">Sozlamalar</h4>
+        <h3 style="margin-top:0; color: var(--primary);">Sozlamalar</h3>
         
-        <label>Shrift o'lchami (7 xil):</label>
+        <label>Shrift o'lchami:</label>
         <select id="font-size">
             <option value="12px">Juda kichik</option>
             <option value="14px">Kichik</option>
@@ -175,10 +178,10 @@
             <option value="30px">Maksimal</option>
         </select>
 
-        <label>Rejim (3 xil):</label>
+        <label>Sayt rejimi:</label>
         <select id="theme-mode">
-            <option value="light">Yorug'</option>
-            <option value="dark">Tungi</option>
+            <option value="light">Yorug' rejim</option>
+            <option value="dark">Tungi rejim</option>
             <option value="neon">Neon Effect</option>
         </select>
     </div>
@@ -187,7 +190,9 @@
 <script>
     const settingsBtn = document.getElementById('settings-btn');
     const settingsMenu = document.getElementById('settings-menu');
+    const body = document.getElementById('main-body');
     
+    // Menyu boshqaruvi
     settingsBtn.onclick = (e) => {
         e.stopPropagation();
         settingsMenu.style.display = settingsMenu.style.display === 'block' ? 'none' : 'block';
@@ -196,14 +201,16 @@
     document.onclick = () => settingsMenu.style.display = 'none';
     settingsMenu.onclick = (e) => e.stopPropagation();
 
+    // Shriftni o'zgartirish (7 xil)
     document.getElementById('font-size').onchange = function() {
-        document.body.style.fontSize = this.value;
+        body.style.fontSize = this.value;
     };
 
+    // Rejimni o'zgartirish (3 xil)
     document.getElementById('theme-mode').onchange = function() {
-        document.body.classList.remove('dark-mode', 'neon-mode');
-        if(this.value === 'dark') document.body.classList.add('dark-mode');
-        if(this.value === 'neon') document.body.classList.add('neon-mode');
+        body.classList.remove('dark-mode', 'neon-mode');
+        if(this.value === 'dark') body.classList.add('dark-mode');
+        if(this.value === 'neon') body.classList.add('neon-mode');
     };
 </script>
 
