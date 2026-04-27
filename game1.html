@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ma'lumot Izlash - CFE</title>
+    <title>Scientific Calculator - CFE</title>
     <style>
         :root {
             --bg: #f4f7f6;
             --primary: #3498db;
-            --card: #ffffff;
+            --display-bg: #2c3e50;
+            --btn-home: #2ecc71;
         }
         body {
             font-family: 'Segoe UI', sans-serif;
@@ -20,91 +21,167 @@
             margin: 0;
             flex-direction: column;
         }
-        .search-container {
-            background: var(--card);
-            padding: 40px;
+        .calculator {
+            background-color: #ffffff;
+            padding: 20px;
             border-radius: 25px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            text-align: center;
-            width: 90%;
-            max-width: 500px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            width: 320px;
+            user-select: none;
         }
-        .search-logo {
-            font-size: 50px;
+        #display {
+            width: 100%;
+            height: 70px;
+            background-color: var(--display-bg);
+            color: #ffffff;
+            text-align: right;
+            font-size: 28px;
+            border: none;
+            border-radius: 15px;
+            padding: 15px;
             margin-bottom: 20px;
+            box-sizing: border-box;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
         }
-        h2 {
-            margin-bottom: 25px;
-            color: #333;
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
         }
-        .search-box {
-            display: flex;
-            gap: 10px;
-            background: #f1f1f1;
-            padding: 5px;
-            border-radius: 50px;
-            border: 2px solid transparent;
-            transition: 0.3s;
-        }
-        .search-box:focus-within {
-            border-color: var(--primary);
-            background: #fff;
-            box-shadow: 0 0 10px rgba(52, 152, 219, 0.2);
-        }
-        input {
-            flex: 1;
+        button {
+            padding: 15px;
+            font-size: 20px;
             border: none;
-            background: none;
-            padding: 12px 20px;
-            font-size: 18px;
-            outline: none;
-        }
-        .search-btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 10px 25px;
-            border-radius: 50px;
+            border-radius: 12px;
             cursor: pointer;
-            font-weight: bold;
-            transition: 0.3s;
+            background-color: #f8f9fa;
+            color: #333;
+            transition: all 0.1s ease;
+            outline: none;
+            box-shadow: 0 4px #ddd;
         }
-        .search-btn:hover {
-            background: #2980b9;
-            transform: scale(1.05);
+
+        button:active {
+            box-shadow: 0 0px #ddd;
+            transform: translateY(4px);
+            background-color: #e2e6ea;
         }
+
+        .op { background-color: #f39c12; color: white; box-shadow: 0 4px #d35400; }
+        .op:active { box-shadow: 0 0px #d35400; background-color: #e67e22; }
+
+        .eq { background-color: var(--primary); color: white; grid-column: span 2; box-shadow: 0 4px #2980b9; }
+        .eq:active { box-shadow: 0 0px #2980b9; }
+
+        .clear { background-color: #e74c3c; color: white; box-shadow: 0 4px #c0392b; }
+        .clear:active { box-shadow: 0 0px #c0392b; }
+        
         .home-btn {
-            margin-top: 30px;
+            margin-top: 25px;
+            background-color: var(--btn-home);
+            color: white;
             text-decoration: none;
-            color: #7f8c8d;
+            padding: 12px 30px;
+            border-radius: 50px;
             font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);
             transition: 0.3s;
         }
-        .home-btn:hover {
-            color: var(--primary);
-        }
+        .home-btn:hover { background-color: #27ae60; transform: scale(1.1); }
     </style>
 </head>
-<body>
+<body id="main-body">
 
-<div class="search-container">
-    <div class="search-logo">🔎</div>
-    <h2>Ma'lumot Izlash</h2>
-    
-    <form action="https://www.google.com/search" method="GET" target="_blank" class="search-box">
-        <input type="text" name="q" placeholder="Nimani izlamoqchisiz?..." required>
-        <button type="submit" class="search-btn">Izlash</button>
-    </form>
+<div class="calculator">
+    <input type="text" id="display" placeholder="0" readonly>
+    <div class="buttons">
+        <button class="clear" onclick="clearDisplay()">C</button>
+        <button onclick="appendDisplay('**')">xʸ</button>
+        <button onclick="sqrt()">√</button>
+        <button class="op" onclick="appendDisplay('/')">÷</button>
 
-    <p style="font-size: 14px; color: #888; margin-top: 20px;">
-        Savolingizni yozing va biz sizga eng to'g'ri ma'lumotlarni topib beramiz.
-    </p>
+        <button onclick="appendDisplay('7')">7</button>
+        <button onclick="appendDisplay('8')">8</button>
+        <button onclick="appendDisplay('9')">9</button>
+        <button class="op" onclick="appendDisplay('*')">×</button>
+
+        <button onclick="appendDisplay('4')">4</button>
+        <button onclick="appendDisplay('5')">5</button>
+        <button onclick="appendDisplay('6')">6</button>
+        <button class="op" onclick="appendDisplay('-')">-</button>
+
+        <button onclick="appendDisplay('1')">1</button>
+        <button onclick="appendDisplay('2')">2</button>
+        <button onclick="appendDisplay('3')">3</button>
+        <button class="op" onclick="appendDisplay('+')">+</button>
+
+        <button onclick="appendDisplay('0')">0</button>
+        <button onclick="appendDisplay('%')">%</button>
+        <button onclick="calculateFactorial()">!</button>
+        <button class="op" onclick="appendDisplay('.')">.</button>
+
+        <button class="eq" onclick="calculate()">=</button>
+        <button class="clear" onclick="backspace()" style="grid-column: span 2;">DEL</button>
+    </div>
 </div>
 
-<a href="index.html" class="home-btn">🏠 Asosiy sahifaga qaytish</a>
+<a href="index.html" class="home-btn">🏠 Ortga Qaytish</a>
+
+<script>
+    let display = document.getElementById('display');
+
+    function appendDisplay(value) {
+        if (display.value === '0' || display.value === 'Xato!') display.value = '';
+        display.value += value;
+    }
+
+    function clearDisplay() {
+        display.value = '';
+    }
+
+    function backspace() {
+        display.value = display.value.slice(0, -1);
+    }
+
+    function calculate() {
+        try {
+            let result = eval(display.value);
+            display.value = Number.isInteger(result) ? result : result.toFixed(4);
+        } catch (e) {
+            display.value = 'Xato!';
+        }
+    }
+
+    // Kvadrat ildiz funksiyasi
+    function sqrt() {
+        try {
+            let val = eval(display.value);
+            if (val < 0) {
+                display.value = "Xato!";
+            } else {
+                let res = Math.sqrt(val);
+                display.value = Number.isInteger(res) ? res : res.toFixed(4);
+            }
+        } catch (e) {
+            display.value = 'Xato!';
+        }
+    }
+
+    function calculateFactorial() {
+        let num = parseInt(display.value);
+        if (isNaN(num) || num < 0) return display.value = "Xato!";
+        if (num > 170) return display.value = "Cheksiz";
+        let fact = 1;
+        for (let i = 1; i <= num; i++) fact *= i;
+        display.value = fact;
+    }
+
+    document.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('mouseup', function() {
+            this.blur();
+        });
+    });
+</script>
 
 </body>
 </html>
