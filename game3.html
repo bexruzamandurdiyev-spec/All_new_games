@@ -2,199 +2,220 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <title>Interaktiv Tarix Testi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PUBG Mobile - Lucky Spin</title>
     <style>
         :root {
-            --dark: #0f172a;
-            --gold: #fbbf24;
-            --correct: #22c55e;
-            --wrong: #ef4444;
-            --card: #1e293b;
+            --primary: #ffcc00;
+            --bg: #0f0f1a;
+            --glass: rgba(255, 255, 255, 0.1);
         }
 
         body {
-            background-color: var(--dark);
-            color: white;
-            font-family: 'Segoe UI', sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
             margin: 0;
-        }
-
-        .header { text-align: center; margin-bottom: 30px; }
-        .header h1 { color: var(--gold); font-size: 32px; margin-bottom: 5px; }
-
-        /* Savol raqamlari paneli */
-        .number-grid {
-            display: grid;
-            grid-template-columns: repeat(10, 1fr);
-            gap: 10px;
-            max-width: 600px;
-            margin-bottom: 40px;
-        }
-
-        .num-btn {
-            width: 50px;
-            height: 50px;
-            background: var(--card);
-            border: 2px solid #334155;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: radial-gradient(circle, #1e1e2f, #0f0f1a);
             color: white;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 18px;
-            transition: 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
         }
 
-        .num-btn:hover { border-color: var(--gold); }
-        .num-btn.answered { background: #334155; opacity: 0.6; border-color: var(--gold); }
-
-        /* Test oynasi */
-        .test-box {
-            display: none;
-            width: 100%;
-            max-width: 700px;
-            background: var(--card);
+        .container {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
             padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            animation: fadeIn 0.4s ease;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            width: 350px;
+            animation: fadeIn 1s ease-in;
         }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-        .question-text { font-size: 22px; margin-bottom: 25px; line-height: 1.4; border-left: 5px solid var(--gold); padding-left: 15px; }
+        h2 { color: var(--primary); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; }
 
-        .options { display: grid; gap: 12px; }
-
-        .option {
-            background: #2d3748;
-            padding: 15px;
+        input {
+            width: 90%;
+            padding: 12px;
+            margin: 10px 0;
             border-radius: 8px;
-            cursor: pointer;
-            font-size: 18px;
-            transition: 0.2s;
-            border: 2px solid transparent;
+            border: none;
+            background: rgba(255,255,255,0.05);
+            color: white;
+            outline: none;
+            border-bottom: 2px solid var(--primary);
         }
 
-        .option:hover { background: #3d4a5d; }
+        button {
+            width: 100%;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
+            border: none;
+            background: var(--primary);
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+        }
 
-        /* To'g'ri va noto'g'ri ranglar */
-        .option.correct { background: var(--correct) !important; color: white; font-weight: bold; }
-        .option.wrong { background: var(--wrong) !important; color: white; }
-        
-        .disabled { pointer-events: none; }
+        button:hover { transform: scale(1.05); box-shadow: 0 0 15px var(--primary); }
 
-        .result-msg { margin-top: 20px; font-weight: bold; font-size: 18px; display: none; }
-        
-        .close-test { margin-top: 25px; background: var(--gold); color: black; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        /* Wheel Styles */
+        .wheel-wrapper {
+            position: relative;
+            width: 260px;
+            height: 260px;
+            margin: 20px auto;
+            border: 8px solid #333;
+            border-radius: 50%;
+            box-shadow: 0 0 20px var(--primary);
+        }
+
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            transition: transform 5s cubic-bezier(0.1, 0, 0.1, 1);
+            background: #222;
+        }
+
+        .pointer {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 40px;
+            background: #ff0000;
+            clip-path: polygon(50% 100%, 0 0, 100% 0);
+            z-index: 10;
+        }
+
+        .segment {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: bottom right;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+            clip-path: polygon(0 0, 100% 0, 100% 100%);
+        }
+
+        .segment span {
+            transform: rotate(-45deg) translateY(-20px);
+            text-shadow: 1px 1px 2px #000;
+        }
+
+        #result-text {
+            margin-top: 15px;
+            font-weight: bold;
+            color: #00ff00;
+            min-height: 20px;
+        }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>XIII-XV Asrlar Madaniyati: Test</h1>
-        <p>Savol raqamini tanlang va to'g'ri javobni belgilang</p>
-    </div>
+    <div class="container" id="main-card">
+        <div id="auth-box">
+            <h2>Lucky Spin</h2>
+            <p style="font-size: 13px; opacity: 0.8;">Sovg'alarni yutib olish uchun ma'lumotlarni tasdiqlang</p>
+            <input type="text" id="nickname" placeholder="O'yin Nickname-ingiz">
+            <input type="number" id="level" placeholder="Darajangiz (Level)">
+            <button onclick="enterGame()">Kirish</button>
+        </div>
 
-    <div class="number-grid" id="numGrid"></div>
-
-    <div class="test-box" id="testBox">
-        <div class="question-text" id="qText"></div>
-        <div class="options" id="optContainer"></div>
-        <div class="result-msg" id="resMsg"></div>
-        <button class="close-test" onclick="hideTest()">Savollar ro'yxatiga qaytish</button>
+        <div id="game-box" style="display:none;">
+            <h3 id="user-display"></h3>
+            <div class="wheel-wrapper">
+                <div class="pointer"></div>
+                <div id="wheel" class="wheel">
+                    </div>
+            </div>
+            <button id="spin-btn" onclick="spinNow()">Aylantirish</button>
+            <p id="result-text"></p>
+        </div>
     </div>
 
     <script>
-        const questions = [
-            { q: "Mirzo Ulug'bek tomonidan yozilgan eng mashhur astronomik asar qaysi?", a: "Ziji Jadidi Ko'ragoniy", b: "Zafarnoma", c: "Xamsa", correct: "a" },
-            { q: "Turkiy tilda 'Xamsa' yaratgan birinchi shoir kim?", a: "Firdavsiy", b: "Alisher Navoiy", c: "Lutfiy", correct: "b" },
-            { q: "Tarixdagi eng boy inson sanalgan Mali imperatori?", a: "Mansa Musa", b: "Ibn Battuta", c: "Sundiata Keyta", correct: "a" },
-            { q: "Inklar davlatida tugunli iplardan iborat yozuv tizimi nima deyiladi?", a: "Iyeroglif", b: "Kip (Quipu)", c: "Piktogramma", correct: "b" },
-            { q: "Asteklarning suv ustida qurilgan mahobatli poytaxti nomi?", a: "Machu Pikchu", b: "Chichen Itsa", c: "Tenochtitlan", correct: "c" },
-            { q: "Matematikada 'Nol' raqamini kashf etgan Amerika xalqi?", a: "Inklar", b: "Mayyalar", c: "Asteklar", correct: "b" },
-            { q: "Dehli sultonligida qurilgan eng baland g'ishtli minora?", a: "Qutub Minor", b: "Kalon minorasi", c: "Esh minorasi", correct: "a" },
-            { q: "Hirot miniatyura maktabining eng buyuk vakili?", a: "Kamoliddin Behzod", b: "Mani", c: "Rizo Abbosiy", correct: "a" },
-            { q: "O'nli kasrlarni birinchi bo'lib fanga kiritgan Samarqandlik olim?", a: "Ali Qushchi", b: "Jamshid al-Koshiy", c: "Mirzo Ulug'bek", correct: "b" },
-            { q: "And tog'larida joylashgan Inkalarning 'yo'qolgan shahri'?", a: "Kusko", b: "Machu Pikchu", c: "Teno", correct: "b" },
-            { q: "Afrika me'morchiligida loy ishlatmay toshdan qurilgan shahar?", a: "Timbuktu", b: "Qohira", c: "Buyuk Zimbabve", correct: "c" },
-            { q: "Amir Temur davrida Samarqandda qurilgan eng ulkan masjid?", a: "Bibixonim", b: "Hazrati Imom", c: "Ko'k Gumbaz", correct: "a" },
-            { q: "XV asrda Xitoyda yaratilgan ulkan ensiklopediya?", a: "Yongle", b: "Sun", c: "Min", correct: "a" },
-            { q: "Afrikadagi Sankore universiteti qaysi ilm-fan shahrida joylashgan?", a: "Mogadisho", b: "Timbuktu", c: "Marokash", correct: "b" },
-            { q: "XV asrda dengizlar orqali sayohat qilgan Xitoy admirali?", a: "Konfutsiy", b: "Chjen Xe", c: "Lao Szi", correct: "b" },
-            { q: "Amir Temur hayotiga bag'ishlangan Sharafiddin Ali Yazdiy asari?", a: "Zafarnoma", b: "Tarixi Rashidiy", c: "Boburnoma", correct: "a" },
-            { q: "Mayyalarning piramidasi qanday asosiy vazifani bajargan?", a: "Saroy", b: "Taqvim/Kalendar", c: "Kutubxona", correct: "b" },
-            { q: "Registon maydonidagi birinchi madrasani kim qurdirgan?", a: "Amir Temur", b: "Mirzo Ulug'bek", c: "Yalangto'sh Bahodir", correct: "b" },
-            { q: "G'arbiy Afrikadagi yetti shahar-davlatdan iborat sivilizatsiya?", a: "Havsa", b: "Mali", c: "Songay", correct: "a" },
-            { q: "Sharqdan Ipak yo'li orqali G'arbga o'tgan eng muhim ixtirolar?", a: "Kompyuter", b: "Qog'oz va Porox", c: "Avtomobil", correct: "b" }
+        const prizes = [
+            { text: "M416 Glacier", color: "#4d94ff" },
+            { text: "660 UC", color: "#ffd700" },
+            { text: "Mythic Outfit", color: "#ff00ff" },
+            { text: "960 UC", color: "#ffd700" },
+            { text: "Crow Set", color: "#333" },
+            { text: "Material", color: "#00ff00" }
         ];
 
-        const numGrid = document.getElementById('numGrid');
-        const testBox = document.getElementById('testBox');
-        const qText = document.getElementById('qText');
-        const optContainer = document.getElementById('optContainer');
-        const resMsg = document.getElementById('resMsg');
-
-        // Raqamlarni yaratish
-        questions.forEach((_, i) => {
-            const btn = document.createElement('button');
-            btn.className = 'num-btn';
-            btn.id = 'btn-' + i;
-            btn.innerText = i + 1;
-            btn.onclick = () => showQuestion(i);
-            numGrid.appendChild(btn);
+        const wheel = document.getElementById('wheel');
+        
+        // G'ildirakni yaratish
+        prizes.forEach((prize, i) => {
+            const seg = document.createElement('div');
+            seg.className = 'segment';
+            seg.style.setProperty('--i', i);
+            seg.style.transform = `rotate(${i * 60}deg)`;
+            seg.style.backgroundColor = prize.color;
+            seg.innerHTML = `<span>${prize.text}</span>`;
+            wheel.appendChild(seg);
         });
 
-        function showQuestion(index) {
-            const question = questions[index];
-            qText.innerText = (index + 1) + ". " + question.q;
-            resMsg.style.display = 'none';
-            optContainer.innerHTML = '';
-            numGrid.style.display = 'none';
-            testBox.style.display = 'block';
+        function enterGame() {
+            const nick = document.getElementById('nickname').value;
+            const lvl = document.getElementById('level').value;
 
-            // Variantlarni yaratish
-            const options = [
-                { id: 'a', text: question.a },
-                { id: 'b', text: question.b },
-                { id: 'c', text: question.c }
-            ];
-
-            options.forEach(opt => {
-                const div = document.createElement('div');
-                div.className = 'option';
-                div.innerText = opt.id.toUpperCase() + ") " + opt.text;
-                div.onclick = () => checkAnswer(div, opt.id, question.correct, index);
-                optContainer.appendChild(div);
-            });
-        }
-
-        function checkAnswer(element, selected, correct, index) {
-            const allOptions = document.querySelectorAll('.option');
-            allOptions.forEach(o => o.classList.add('disabled'));
-
-            if (selected === correct) {
-                element.classList.add('correct');
-                resMsg.innerText = "To'g'ri topdingiz! Barakalla.";
-                resMsg.style.color = "var(--correct)";
+            if(nick.length > 2 && lvl > 0) {
+                document.getElementById('auth-box').style.display = 'none';
+                document.getElementById('game-box').style.display = 'block';
+                document.getElementById('user-display').innerText = `Omad, ${nick}!`;
             } else {
-                element.classList.add('wrong');
-                allOptions.forEach(o => {
-                    if(o.innerText.toLowerCase().startsWith(correct)) o.classList.add('correct');
-                });
-                resMsg.innerText = "Noto'g'ri. To'g'ri javob ko'rsatildi.";
-                resMsg.style.color = "var(--wrong)";
+                alert("Iltimos, ma'lumotlarni to'g'ri kiriting!");
             }
-            resMsg.style.display = 'block';
-            document.getElementById('btn-' + index).classList.add('answered');
         }
 
-        function hideTest() {
-            testBox.style.display = 'none';
-            numGrid.style.display = 'grid';
+        let isSpinning = false;
+        function spinNow() {
+            if (isSpinning) return;
+            isSpinning = true;
+
+            const btn = document.getElementById('spin-btn');
+            const resultText = document.getElementById('result-text');
+            btn.style.opacity = '0.5';
+            btn.disabled = true;
+
+            const extraDeg = Math.floor(Math.random() * 360);
+            const totalDeg = 3600 + extraDeg; // 10 marta to'liq aylanish + tasodifiy nuqta
+
+            wheel.style.transform = `rotate(${totalDeg}deg)`;
+
+            setTimeout(() => {
+                resultText.innerHTML = "Tabriklaymiz! Sovg'angiz tizimda band qilindi.<br><small>3-4 kun ichida ID raqamingizga yuboriladi.</small>";
+                
+                // Effekt uchun ekranga konfeti kabi animatsiya qo'shish mumkin
+                confettiEffect();
+            }, 5000);
+        }
+
+        function confettiEffect() {
+            // Oddiygina miltillash effekti
+            document.body.style.backgroundColor = "#1a1a2e";
+            setTimeout(() => document.body.style.backgroundColor = "#0f0f1a", 200);
         }
     </script>
 </body>
